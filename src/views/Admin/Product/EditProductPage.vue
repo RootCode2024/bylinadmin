@@ -1858,7 +1858,7 @@ const getImagePreview = (image) => {
 const getImageUrl = (imagePath) => {
   if (!imagePath) return ''
   if (imagePath.startsWith('http')) return imagePath
-  return "http://localhost:8000" + imagePath
+  return "https://stagging.bylin-style.com" + imagePath
 }
 
 const generateBarcode = () => {
