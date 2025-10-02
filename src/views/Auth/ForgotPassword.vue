@@ -38,14 +38,10 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuth } from '@/composables/useAuth';
 const router = useRouter();
-const { forgotPassword } = useAuth();
 const email = ref('');
 const handleSubmit = async () => {
   try {
-    await forgotPassword(email.value);
-    alert('Password reset link sent to your email.');
     router.push('/login');
   } catch (error) {
     console.error('Error sending password reset link:', error);
