@@ -3,7 +3,7 @@
     <div class="flex items-center justify-center min-h-screen">
       <div class="w-full max-w-md">
         <router-link to="/" class="block mb-4">
-          <img src="@/assets/logo.png" alt="Logo" class="mx-auto h-12 w-auto">
+          <img src="@/assets/images/logo-placeholder.png" alt="Logo" class="mx-auto h-12 w-auto">
         </router-link>
         <h1 class="text-2xl font-bold text-center mb-6">Forgot Password</h1>
         <form @submit.prevent="handleSubmit" class="bg-white p-6 rounded-lg shadow-md">
