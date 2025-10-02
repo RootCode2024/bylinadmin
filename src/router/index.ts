@@ -203,13 +203,18 @@ const router = createRouter({
 // Global auth guard
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  const requiresAuth = to.meta.requiresAuth
-  const allowedRoles = to.meta.roles || []
+  const requiresAuth = to.meta.requiresAuth as boolean
+  const allowedRoles = to.meta.roles as string[] || []
   const isPublicRoute = !requiresAuth
+
+  // Définir le titre de la page
+  const setPageTitle = (title: string) => {
+    document.title = `${title} | Bylin`
+  }
 
   // 1. Check public routes
   if (isPublicRoute) {
-    document.title = `${to.meta.title} | Bylin`
+    setPageTitle(to.meta.title as string)
     return next()
   }
 
@@ -217,6 +222,8 @@ router.beforeEach(async (to, from, next) => {
   if (!authStore.isAuthenticated) {
     try {
       await authStore.fetchUser()
+
+      // Si toujours pas authentifié après fetch
       if (!authStore.isAuthenticated) {
         return next({
           name: 'login',
@@ -225,39 +232,49 @@ router.beforeEach(async (to, from, next) => {
         })
       }
     } catch (error) {
-      console.error("Failed to fetch user:", error)
-      return next('/signin')
+      console.error("Erreur lors de la récupération de l'utilisateur:", error)
+      return next({
+        name: 'login',
+        query: { redirect: to.fullPath },
+        replace: true
+      })
     }
   }
 
-  // 3. Check roles
+  // 3. Empêcher l'accès aux routes d'authentification lorsque déjà authentifié
+  const authRouteNames = ['login', 'register', 'forgot-password']
+  if (authRouteNames.includes(to.name as string) && authStore.isAuthenticated) {
+    return next('/')
+  }
+
+  // 4. Check roles si nécessaire
   if (allowedRoles.length > 0) {
-    const hasRequiredRole = allowedRoles.some(role =>
-      authStore.roles.includes(role)
-    )
+    const userRoles = authStore.roles || []
+    const hasRequiredRole = allowedRoles.some(role => userRoles.includes(role))
 
     if (!hasRequiredRole) {
-      console.warn(`Access denied. Required roles: ${allowedRoles}. User roles: ${authStore.roles}`)
+      console.warn(`Accès refusé. Rôles requis: ${allowedRoles.join(', ')}. Rôles utilisateur: ${userRoles.join(', ')}`)
+      setPageTitle('Accès refusé')
       return next('/forbidden')
     }
   }
 
-  // 4. Empêcher l'accès aux routes d'authentification lorsque authentifié
-  if (['login', 'register', 'forgot-password'].includes(to.name) && authStore.isAuthenticated) {
-    return next('/')
-  }
-
-  // 5. Final validation
-  document.title = `${to.meta.title} | Bylin`
+  // 5. Navigation autorisée
+  setPageTitle(to.meta.title as string)
   next()
 })
 
-// Error handling
+// Gestion des erreurs de navigation
 router.onError((error) => {
-  console.error('Navigation error:', error)
+  console.error('Erreur de navigation:', error)
+
+  // Ignorer les erreurs de navigation dupliquée
   if (error.name === 'NavigationDuplicated') {
     return
   }
+
+  // Rediriger vers la page 404 pour les autres erreurs
+  router.push('/not-found')
 })
 
 export default router

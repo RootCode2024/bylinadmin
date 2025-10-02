@@ -388,7 +388,6 @@ const agreeToTerms = ref(false)
 
 const formData = ref({
   name: '',
-  name: '',
   email: '',
   password: '',
   password_confirmation: '',
@@ -396,7 +395,6 @@ const formData = ref({
 })
 
 const errors = ref({
-  name: '',
   name: '',
   email: '',
   password: '',
@@ -416,7 +414,6 @@ const validateForm = () => {
   let isValid = true
   errors.value = {
     name: '',
-    name: '',
     email: '',
     password: '',
     password_confirmation: '',
@@ -424,11 +421,6 @@ const validateForm = () => {
   }
 
   // Validation des champs requis
-  if (!formData.value.name.trim()) {
-    errors.value.name = 'Le prénom est requis'
-    isValid = false
-  }
-
   if (!formData.value.name.trim()) {
     errors.value.name = 'Le nom est requis'
     isValid = false
@@ -497,7 +489,6 @@ const handleSubmit = async () => {
 // Computed property pour désactiver le bouton
 const isSubmitDisabled = computed(() => {
   return authStore.isLoading ||
-         !formData.value.name ||
          !formData.value.name ||
          !formData.value.email ||
          !formData.value.password ||
