@@ -22,10 +22,10 @@ export default defineConfig({
         }
       },
       external: [],
-      // input: {
-      //   main: resolve(__dirname, 'index.html')
-      // }
     }
+  },
+  optimizeDeps: {
+    include: ['echarts'] // Forcer l'inclusion d'echarts
   },
   resolve: {
     alias: {

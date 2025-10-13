@@ -10,12 +10,12 @@
     "build-only": "vite build",
     "vercel-build": "npm run build",
     "preview": "vite preview",
-    "build-only": "vite build",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
   },
   "resolutions": {
-    "element-plus": "^2.4.0"
+    "element-plus": "^2.4.0",
+    "echarts": "^5.4.0"
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.15",
@@ -34,6 +34,7 @@
     "datatables.net-dt": "^2.3.2",
     "datatables.net-vue3": "^3.0.4",
     "dropzone": "^6.0.0-beta.2",
+    "echarts": "^6.0.0",
     "element-plus": "^2.11.4",
     "file-saver": "^2.0.5",
     "flatpickr": "^4.6.13",
