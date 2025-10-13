@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
-    "vercel-build": "npm install --legacy-peer-deps && npm run build",
+      "build": "npm run type-check && npm run build-only",
+    "type-check": "vue-tsc --build",
+    "build-only": "vite build",
+    "vercel-build": "npm run build",
     "preview": "vite preview",
     "build-only": "vite build",
-    "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
   },
