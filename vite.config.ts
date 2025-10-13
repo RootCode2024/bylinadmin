@@ -25,7 +25,11 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    include: ['echarts'] // Forcer l'inclusion d'echarts
+    include: [
+      'echarts',
+      'vue-echarts',
+      'element-plus'
+    ] // Forcer l'inclusion d'echarts
   },
   resolve: {
     alias: {
