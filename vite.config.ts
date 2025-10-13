@@ -21,7 +21,10 @@ export default defineConfig({
           charts: ['echarts', 'vue-echarts']
         }
       },
-      external: ['vue', 'vue-router', 'pinia', 'element-plus', '@element-plus/icons-vue', 'echarts', 'vue-echarts']
+      external: [],
+      // input: {
+      //   main: resolve(__dirname, 'index.html')
+      // }
     }
   },
   resolve: {

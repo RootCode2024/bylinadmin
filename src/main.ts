@@ -14,6 +14,8 @@ import VueApexCharts from 'vue3-apexcharts'
 import websocketService from './services/websocket'
 import { useAuthStore } from './stores/auth'
 import echo from './plugins/echo'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
 
 const pinia = createPinia()
 const app = createApp(App)
@@ -22,6 +24,8 @@ app.use(router)
 app.use(VueApexCharts)
 
 app.config.globalProperties.$echo = echo
+
+app.use(ElementPlus)
 
 app.use(pinia)
 
