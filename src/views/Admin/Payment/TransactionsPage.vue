@@ -8,26 +8,26 @@
         <StatCard
           title="Transactions totales"
           :value="formatCurrency(totalTransactions ?? 0)"
-          icon="💰"
-          :trend="stats.trend"
+          icon="Circle"
+          trend="5%"
         />
         <StatCard
           title="Transactions réussies"
           :value="stats.successCount"
-          icon="✅"
+          icon="Circle"
           trend="8%"
           trend-positive
         />
         <StatCard
           title="Remboursements"
           :value="formatCurrency(totalRefunds ?? 0)"
-          icon="↩️"
+          icon="Circle"
           trend="3%"
         />
         <StatCard
           title="Revenue net"
           :value="formatCurrency(netRevenue ?? 0)"
-          icon="💵"
+          icon="Circle"
           trend="15%"
           trend-positive
         />

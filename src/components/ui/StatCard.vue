@@ -12,7 +12,12 @@
       </div>
       <div class="bg-blue-100 p-3 rounded-full border dark:bg-blue-900/30">
         <span class="text-xl">
-          <img src="@/assets/icons/fly_delivery.png" v-if="icon === 'fly'" :alt="icon" class="w-12 h-12"/>
+          <ShoppingBag v-if="icon === 'ShoppingBag'" />
+          <Handshake v-if="icon === 'Handshake'" />
+          <Truck v-if="icon === 'Truck'" />
+          <Circle v-if="icon === 'Circle'" />
+          <Percent v-if="icon === 'Percent'" />
+          <PackageOpen v-if="icon === 'PackageOpen'" />
         </span>
       </div>
     </div>
@@ -39,7 +44,7 @@ defineProps({
   },
   icon: {
     type: String,
-    default: '📊'
+    default: "Circle"
   },
   trend: {
     type: String,
@@ -50,4 +55,7 @@ defineProps({
     default: false
   }
 })
+
+
+import { ShoppingBag, PackageOpen, Handshake, Truck, Circle, Percent } from 'lucide-vue-next';
 </script>

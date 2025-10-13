@@ -102,8 +102,10 @@ const dragOver = ref(false)
 const errorMessage = ref('')
 
 const getImageUrl = (image) => {
-  return image instanceof File ? URL.createObjectURL(image) : image
+  return image instanceof File ? URL.createObjectURL(image) : 'https://stagging.bylin-style.com' + image.url
 }
+
+// 'https://stagging.bylin-style.com' +
 
 const openFilePicker = () => {
   fileInput.value.click()

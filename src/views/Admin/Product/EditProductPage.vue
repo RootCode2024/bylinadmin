@@ -5,12 +5,8 @@
     <div class="max-w-7xl px-4 mx-auto sm:px-6 lg:px-8">
       <!-- Header avec indicateur de progression -->
       <div class="mb-8">
-        <div class="flex items-center justify-between my-8">
-          <div>
-            <p class="text-sm text-gray-500 mt-1">
-              Produit ID: {{ $route.params.productId }} • Dernière modification: {{ lastModified }}
-            </p>
-          </div>
+        <div class="flex items-center justify-between mb-4">
+          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ currentPageTitle }}</h1>
           <div class="flex items-center space-x-2">
             <span class="text-sm text-gray-500">Étape {{ currentStepNumber }} sur {{ tabs.length }}</span>
             <div class="w-32 bg-gray-200 rounded-full h-2">
@@ -77,47 +73,38 @@
           </div>
         </div>
 
-        <!-- État de chargement initial -->
-        <div v-if="isLoading" class="p-8 text-center">
-          <SpinnerIcon class="w-8 h-8 mx-auto animate-spin text-blue-600 mb-4" />
-          <p class="text-gray-600 dark:text-gray-400">Chargement du produit...</p>
-        </div>
-
-        <!-- Message d'erreur si produit non trouvé -->
-        <div v-else-if="loadError" class="p-8 text-center">
-          <ExclamationTriangleIcon class="w-12 h-12 mx-auto text-red-500 mb-4" />
-          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Produit introuvable</h3>
-          <p class="text-gray-600 dark:text-gray-400 mb-4">{{ loadError }}</p>
-          <button
-            @click="$router.push({ name: 'products' })"
-            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Retourner à la liste des produits
-          </button>
-        </div>
-
-        <!-- Formulaire d'édition -->
-        <form v-else @submit.prevent="updateProduct" class="p-8">
-          <!-- Sauvegarde automatique -->
-          <div
-            v-if="autoSaveStatus"
-            :class="{
-              'bg-green-50 border-green-200 text-green-700': autoSaveStatus === 'saved',
-              'bg-yellow-50 border-yellow-200 text-yellow-700': autoSaveStatus === 'saving',
-              'bg-red-50 border-red-200 text-red-700': autoSaveStatus === 'error'
-            }"
-            class="border-l-4 p-3 text-sm mb-6"
-          >
+        <!-- Statut du produit -->
+        <div v-if="product.id" class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+          <div class="flex items-center justify-between">
             <div class="flex items-center">
-              <SpinnerIcon v-if="autoSaveStatus === 'saving'" class="w-4 h-4 mr-2 animate-spin" />
-              <CheckCircleIcon v-else-if="autoSaveStatus === 'saved'" class="w-4 h-4 mr-2" />
-              <ExclamationCircleIcon v-else class="w-4 h-4 mr-2" />
-              <span>
-                {{ autoSaveMessages[autoSaveStatus] }}
+              <InformationCircleIcon class="h-5 w-5 text-blue-400 mr-2" />
+              <span class="text-sm text-blue-700">
+                Modification du produit <strong>{{ product.reference }}</strong>
+                <span v-if="product.sku"> - SKU: {{ product.sku }}</span>
+              </span>
+            </div>
+            <div class="flex items-center space-x-4">
+              <span
+                :class="{
+                  'bg-green-100 text-green-800': product.is_draft === false,
+                  'bg-yellow-100 text-yellow-800': product.is_draft === true
+                }"
+                class="px-2 py-1 text-xs font-medium rounded-full"
+              >
+                {{ product.is_draft ? 'Brouillon' : 'Publié' }}
+              </span>
+              <span
+                v-if="product.deleted_at"
+                class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full"
+              >
+                Supprimé
               </span>
             </div>
           </div>
+        </div>
 
+        <!-- Formulaire principal -->
+        <form @submit.prevent="submitForm" novalidate class="p-8">
           <!-- Onglet Informations de base -->
           <div v-show="activeTab === 'info'" class="space-y-8">
             <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -133,18 +120,34 @@
                   class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   placeholder="Ex: T-shirt en coton bio..."
                 >
-                <div class="flex justify-between mt-1">
-                  <p class="text-sm text-gray-500">
-                    Slug actuel: <code class="bg-gray-100 px-1 rounded">{{ product.slug }}</code>
-                  </p>
-                  <button
-                    type="button"
-                    @click="regenerateSlug"
-                    class="text-xs text-blue-600 hover:text-blue-800"
-                  >
-                    Régénérer le slug
-                  </button>
-                </div>
+                <p class="mt-1 text-sm text-gray-500">Le slug sera généré automatiquement</p>
+              </div>
+
+              <!-- Référence et SKU -->
+              <div>
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  Référence
+                </label>
+                <input
+                  v-model="product.reference"
+                  type="text"
+                  class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  readonly
+                >
+                <p class="mt-1 text-sm text-gray-500">Générée automatiquement</p>
+              </div>
+
+              <div>
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                  SKU
+                </label>
+                <input
+                  v-model="product.sku"
+                  type="text"
+                  class="w-full p-3 border rounded-lg bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  readonly
+                >
+                <p class="mt-1 text-sm text-gray-500">Généré automatiquement</p>
               </div>
 
               <!-- Type et Genre -->
@@ -230,51 +233,6 @@
               </div>
             </div>
 
-            <!-- Statut du produit -->
-            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
-              <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Statut et visibilité</h3>
-              <div class="grid grid-cols-2 gap-4 lg:grid-cols-3">
-                <div>
-                  <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Statut de publication
-                  </label>
-                  <select
-                    v-model="product.status"
-                    class="w-full p-3 bg-white dark:bg-gray-800 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  >
-                    <option value="draft">🗒️ Brouillon</option>
-                    <option value="published">✅ Publié</option>
-                    <option value="archived">📦 Archivé</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Visibilité
-                  </label>
-                  <select
-                    v-model="product.visibility"
-                    class="w-full p-3 bg-white dark:bg-gray-800 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  >
-                    <option value="public">🌐 Public</option>
-                    <option value="private">🔒 Privé</option>
-                    <option value="members_only">👥 Membres uniquement</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                    Stock global
-                  </label>
-                  <div class="p-3 bg-white dark:bg-gray-800 border rounded-lg">
-                    <span class="text-lg font-semibold" :class="totalStock > 0 ? 'text-green-600' : 'text-red-600'">
-                      {{ totalStock }} unités
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <!-- Descriptions -->
             <div class="space-y-6">
               <div>
@@ -335,30 +293,17 @@
                   <input v-model="product.is_flash_sale" type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                   <span class="ml-3 text-sm font-medium text-gray-900 dark:text-white">⚡ Vente flash</span>
                 </label>
+
+                <label class="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                  <input v-model="product.is_draft" type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                  <span class="ml-3 text-sm font-medium text-gray-900 dark:text-white">📝 Brouillon</span>
+                </label>
               </div>
             </div>
           </div>
 
           <!-- Onglet Prix et Stock -->
           <div v-show="activeTab === 'price'" class="space-y-8">
-            <!-- Historique des prix -->
-            <div v-if="priceHistory && priceHistory.length > 0" class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
-              <h3 class="text-lg font-medium text-blue-900 dark:text-blue-100 mb-4">📊 Historique des prix</h3>
-              <div class="space-y-2">
-                <div v-for="(record, index) in priceHistory.slice(0, 3)" :key="index" class="flex justify-between text-sm">
-                  <span class="text-blue-700 dark:text-blue-200">{{ formatDate(record.date) }}</span>
-                  <span class="font-medium">{{ record.price }} F CFA</span>
-                </div>
-                <button
-                  v-if="priceHistory.length > 3"
-                  type="button"
-                  class="text-xs text-blue-600 hover:text-blue-800"
-                >
-                  Voir l'historique complet ({{ priceHistory.length }} modifications)
-                </button>
-              </div>
-            </div>
-
             <!-- Calculateur de prix -->
             <div class="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6">
               <h3 class="text-lg font-medium text-blue-900 dark:text-blue-100 mb-4">💰 Calculateur de prix</h3>
@@ -379,9 +324,6 @@
                       @input="calculateMargin"
                     >
                   </div>
-                  <p v-if="originalPrice && originalPrice !== product.price" class="mt-1 text-xs text-blue-600">
-                    Prix original: {{ originalPrice }} F CFA
-                  </p>
                 </div>
 
                 <div>
@@ -497,7 +439,7 @@
                   >
                     <option value="">Sélectionner une saison</option>
                     <option value="printemps">🌸 Printemps</option>
-                    <option value="été">☀️ Été</option>
+                    <option value="ete">☀️ Été</option>
                     <option value="automne">🍂 Automne</option>
                     <option value="hiver">❄️ Hiver</option>
                     <option value="toute_saison">🔄 Toute saison</option>
@@ -622,7 +564,7 @@
                 <div>
                   <label class="block mb-1 text-xs text-gray-500">Profondeur (cm) <span class="text-red-500">*</span></label>
                   <input
-                    v-model.number="dimensionsInput.depth"
+                    v-model.number="dimensionsInput.length"
                     type="number"
                     min="0"
                     step="0.1"
@@ -678,7 +620,7 @@
             <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-6">
               <h3 class="text-lg font-medium text-indigo-900 dark:text-indigo-100 mb-4">🎨 Variantes du produit</h3>
               <p class="text-sm text-indigo-700 dark:text-indigo-200 mb-6">
-                Modifiez les différentes combinaisons de couleurs et tailles disponibles pour ce produit.
+                Définissez les différentes combinaisons de couleurs et tailles disponibles pour ce produit.
                 {{ product.images.length > 0 ? `Vous avez ${product.images.length} image(s) disponible(s) pour les associer aux variantes.` : '' }}
               </p>
 
@@ -699,7 +641,7 @@
                   class="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <SparklesIcon class="w-4 h-4 mr-2" />
-                  Générer nouvelles combinaisons
+                  Générer toutes les combinaisons
                 </button>
                 <button
                   type="button"
@@ -830,7 +772,6 @@
                             type="number"
                             min="0"
                             class="w-20 px-2 py-1 text-sm border rounded"
-                            @change="markAsModified"
                           >
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -839,7 +780,6 @@
                             type="text"
                             class="w-32 px-2 py-1 text-sm border rounded"
                             placeholder="Auto-généré"
-                            @change="markAsModified"
                           >
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
@@ -848,7 +788,6 @@
                               v-model="variant.main_image_index"
                               class="w-24 px-2 py-1 text-sm border rounded"
                               :disabled="product.images.length === 0"
-                              @change="markAsModified"
                             >
                               <option :value="null">Défaut</option>
                               <option
@@ -865,13 +804,10 @@
                               class="w-8 h-8 rounded border border-gray-300 overflow-hidden"
                             >
                               <img
-                                :src="getImageUrl(product.images[variant.main_image_index])"
+                                :src="getImagePreview(product.images[variant.main_image_index])"
                                 alt="Aperçu"
                                 class="w-full h-full object-cover"
-                              />
-                            </div>
-                            <div v-else-if="variant.main_image_index === null || !product.images[variant.main_image_index]">
-                              <span class="text-sm text-gray-500">Aucune image</span>
+                              >
                             </div>
                           </div>
                         </td>
@@ -918,23 +854,11 @@
                 <CloudArrowUpIcon class="mx-auto h-16 w-16 text-gray-400" />
                 <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">Images du produit</h3>
                 <p class="text-sm text-gray-500">
-                  Modifiez les images de votre produit ou ajoutez-en de nouvelles
+                  Ajoutez des images de haute qualité pour présenter votre produit
                 </p>
               </div>
 
-              <ImageUploader v-model="product.images" :existing-images="originalImages" />
-
-              <!-- Comparaison avec les images originales -->
-              <div v-if="originalImages && originalImages.length > 0" class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <h4 class="font-medium text-blue-900 dark:text-blue-100 mb-2">📷 Images modifiées</h4>
-                <div class="flex justify-between text-sm text-blue-700 dark:text-blue-200">
-                  <span>Images originales: {{ originalImages.length }}</span>
-                  <span>Images actuelles: {{ product.images.length }}</span>
-                  <span v-if="product.images.length !== originalImages.length" class="font-medium">
-                    {{ product.images.length > originalImages.length ? 'Nouvelles images ajoutées' : 'Images supprimées' }}
-                  </span>
-                </div>
-              </div>
+              <ImageUploader v-model="product.images" :existing-images="existingImages" />
 
               <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <h4 class="font-medium text-blue-900 dark:text-blue-100 mb-2">💡 Conseils pour les images</h4>
@@ -943,7 +867,7 @@
                   <li>• La première image sera utilisée comme image principale</li>
                   <li>• Ajoutez plusieurs angles de vue</li>
                   <li>• Montrez les détails importants (matière, finitions, etc.)</li>
-                  <li>• Les variantes existantes conserveront leurs associations d'images</li>
+                  <li>• Vous pourrez assigner des images spécifiques aux variantes</li>
                 </ul>
               </div>
             </div>
@@ -951,35 +875,18 @@
 
           <!-- Boutons de navigation -->
           <div class="flex justify-between items-center pt-8 border-t border-gray-200 dark:border-gray-700">
-            <div class="flex items-center space-x-4">
-              <button
-                v-if="activeTab !== 'info'"
-                @click="prevTab"
-                type="button"
-                class="flex items-center px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 transition-all"
-              >
-                <ChevronLeftIcon class="w-4 h-4 mr-2" />
-                Précédent
-              </button>
-
-              <!-- Bouton pour voir le produit -->
-              <button
-                type="button"
-                @click="viewProduct"
-                class="flex items-center px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded-lg transition-colors"
-              >
-                <EyeIcon class="w-4 h-4 mr-2" />
-                Voir le produit
-              </button>
-            </div>
+            <button
+              v-if="activeTab !== 'info'"
+              @click="prevTab"
+              type="button"
+              class="flex items-center px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 transition-all"
+            >
+              <ChevronLeftIcon class="w-4 h-4 mr-2" />
+              Précédent
+            </button>
+            <div v-else></div>
 
             <div class="flex items-center space-x-4">
-              <!-- Indicateur de modifications non sauvegardées -->
-              <div v-if="hasUnsavedChanges" class="flex items-center text-orange-600">
-                <ExclamationCircleIcon class="w-4 h-4 mr-1" />
-                <span class="text-sm">Modifications non sauvegardées</span>
-              </div>
-
               <button
                 type="button"
                 @click="saveDraft"
@@ -987,7 +894,7 @@
                 class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50"
               >
                 <span v-if="isSavingDraft">Sauvegarde...</span>
-                <span v-else>💾 Sauvegarder les modifications</span>
+                <span v-else>💾 Sauvegarder le brouillon</span>
               </button>
 
               <button
@@ -1181,242 +1088,126 @@
       @close="showCreateCategoryModal = false"
       @created="handleCategoryCreated"
     />
-
-    <!-- Modal de confirmation avant suppression -->
-    <Modal v-if="showDeleteConfirmModal" @close="showDeleteConfirmModal = false">
-      <template #header>
-        <h2 class="text-lg font-semibold text-red-600">
-          Supprimer le produit
-        </h2>
-      </template>
-      <template #body>
-        <div class="space-y-4">
-          <div class="flex items-center p-4 bg-red-50 rounded-lg">
-            <ExclamationTriangleIcon class="h-8 w-8 text-red-500 mr-3" />
-            <div>
-              <h3 class="font-medium text-red-800">Attention : Action irréversible</h3>
-              <p class="text-sm text-red-700 mt-1">
-                Cette action supprimera définitivement le produit "{{ product.name }}" et toutes ses données associées.
-              </p>
-            </div>
-          </div>
-
-          <div class="bg-gray-50 rounded-lg p-4">
-            <h4 class="font-medium text-gray-900 mb-2">Données qui seront supprimées :</h4>
-            <ul class="text-sm text-gray-700 space-y-1">
-              <li>• {{ product.variants?.length || 0 }} variante(s) de produit</li>
-              <li>• {{ product.images?.length || 0 }} image(s)</li>
-              <li>• Historique des prix et modifications</li>
-              <li>• Statistiques et analyses associées</li>
-            </ul>
-          </div>
-
-          <div>
-            <label class="block mb-2 text-sm font-medium text-gray-700">
-              Pour confirmer, tapez "SUPPRIMER" :
-            </label>
-            <input
-              v-model="deleteConfirmText"
-              type="text"
-              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-              placeholder="SUPPRIMER"
-            >
-          </div>
-
-          <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
-            <button
-              type="button"
-              @click="showDeleteConfirmModal = false"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              Annuler
-            </button>
-            <button
-              type="button"
-              @click="deleteProduct"
-              :disabled="deleteConfirmText !== 'SUPPRIMER' || isDeletingProduct"
-              class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <span v-if="isDeletingProduct" class="flex items-center">
-                <SpinnerIcon class="w-4 h-4 mr-2 animate-spin" />
-                Suppression...
-              </span>
-              <span v-else>Supprimer définitivement</span>
-            </button>
-          </div>
-        </div>
-      </template>
-    </Modal>
-
-    <!-- Menu d'actions flottant -->
-    <div class="fixed bottom-6 right-6 flex flex-col space-y-3">
-      <!-- Bouton principal d'actions -->
-      <div class="relative">
-        <button
-          @click="showActionsMenu = !showActionsMenu"
-          class="w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 transition-all flex items-center justify-center"
-        >
-          <EllipsisHorizontalIcon class="w-5 h-5" />
-        </button>
-
-        <!-- Menu déroulant -->
-        <div
-          v-if="showActionsMenu"
-          class="absolute bottom-14 right-0 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 py-2 min-w-48"
-        >
-          <button
-            @click="duplicateProduct"
-            class="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
-          >
-            <DocumentDuplicateIcon class="w-4 h-4 mr-3" />
-            Dupliquer le produit
-          </button>
-
-          <button
-            @click="exportProduct"
-            class="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
-          >
-            <ArrowDownTrayIcon class="w-4 h-4 mr-3" />
-            Exporter les données
-          </button>
-
-          <button
-            @click="viewProductHistory"
-            class="w-full px-4 py-2 text-left text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center"
-          >
-            <ClockIcon class="w-4 h-4 mr-3" />
-            Voir l'historique
-          </button>
-
-          <hr class="my-2 border-gray-200 dark:border-gray-600">
-
-          <button
-            @click="showDeleteConfirmModal = true; showActionsMenu = false"
-            class="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center"
-          >
-            <TrashIcon class="w-4 h-4 mr-3" />
-            Supprimer le produit
-          </button>
-        </div>
-      </div>
-    </div>
   </AdminLayout>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeMount, onUnmounted, watch, nextTick } from 'vue'
+import { ref, onMounted, watch, computed, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import AdminLayout from '@/components/layout/AdminLayout.vue'
-import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
+import AdminLayout from "@/components/layout/AdminLayout.vue"
+import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue"
 import ImageUploader from '@/components/products/ImageUploader.vue'
-import Modal from '@/components/ui/Modal.vue'
 import QuickCreateModal from '@/components/common/QuickCreateModal.vue'
-import api from '@/api/axiosConfig'
+import Modal from '@/components/ui/Modal.vue'
 import { useColorsStore } from '@/stores/colors'
 import { useSizesStore } from '@/stores/sizes'
-
-// Icons
 import {
   CheckIcon,
   ChevronRightIcon,
   ChevronLeftIcon,
   ExclamationTriangleIcon,
-  ExclamationCircleIcon,
   CheckCircleIcon,
+  ExclamationCircleIcon,
+  ArrowPathIcon as SpinnerIcon,
   CloudArrowUpIcon,
   PlusIcon,
-  SparklesIcon,
   TrashIcon,
   SwatchIcon,
-  EyeIcon,
-  EllipsisHorizontalIcon,
-  DocumentDuplicateIcon,
-  ArrowDownTrayIcon,
-  ClockIcon
+  SparklesIcon,
+  InformationCircleIcon
 } from '@heroicons/vue/24/outline'
-
-// Import correct pour SpinnerIcon
-import { ArrowPathIcon as SpinnerIcon } from '@heroicons/vue/24/outline'
+import api from '@/api/axiosConfig'
 
 const route = useRoute()
 const router = useRouter()
 
+// Stores
 const colorsStore = useColorsStore()
 const sizesStore = useSizesStore()
 
-// États de chargement
-const isLoading = ref(true)
-const loadError = ref(null)
-const isSubmitting = ref(false)
-const isSavingDraft = ref(false)
-const isDeletingProduct = ref(false)
+const currentPageTitle = ref('Modifier le produit')
 
-// État des modifications
-const hasUnsavedChanges = ref(false)
-const originalProduct = ref(null)
-const originalImages = ref([])
-const originalPrice = ref(null)
-const lastModified = ref('')
-
-// Navigation
-const activeTab = ref('info')
-const tabs = ref([
-  { id: 'info', label: 'Informations' },
+// Configuration des onglets
+const tabs = [
+  { id: 'info', label: 'Informations de base' },
   { id: 'price', label: 'Prix & Stock' },
-  { id: 'details', label: 'Détails' },
-  { id: 'variants', label: 'Variantes' },
-  { id: 'images', label: 'Images' }
-])
+  { id: 'details', label: 'Détails produit' },
+  { id: 'images', label: 'Images' },
+  { id: 'variants', label: 'Couleurs & Tailles' }
+]
+const activeTab = ref('info')
+
+// États pour l'UX
+const validationErrors = ref([])
+const autoSaveStatus = ref(null)
+const autoSaveMessages = {
+  saving: 'Sauvegarde en cours...',
+  saved: 'Brouillon sauvegardé automatiquement',
+  error: 'Erreur lors de la sauvegarde automatique'
+}
+const showCreateBrandModal = ref(false)
+const showCreateCategoryModal = ref(false)
+const isSavingDraft = ref(false)
+const showVariantModal = ref(false)
+const existingImages = ref([])
 
 // Données du produit
 const product = ref({
   id: null,
+  // Identification & Catégorisation
   name: '',
-  slug: '',
+  reference: '',
+  sku: '',
   type: 'new',
-  gender: 'unisex',
-  brand_id: null,
   category_id: null,
-  short_description: '',
-  full_description: '',
+  brand_id: null,
+  gender: 'unisex',
+
+  // Stock & Précommande
+  is_preorder: false,
+  preorder_deadline: null,
+  expected_ship_date: null,
+
+  // Prix
   price: 0,
   discounted_price: null,
   cost_price: null,
+  is_flash_sale: false,
+
+  // Descriptions
+  short_description: '',
+  full_description: '',
+
+  // Détails produit
   material: '',
+  care_instructions: '',
   season: '',
   weight_grams: 0,
-  country_of_origin: '',
-  vintage_year: null,
-  care_instructions: '',
   dimensions: {},
-  release_date: null,
-  preorder_deadline: null,
-  expected_ship_date: null,
+  country_of_origin: '',
+
+  // Visibilité
   is_featured: false,
   is_trending: false,
-  is_preorder: false,
-  is_flash_sale: false,
-  status: 'draft',
-  visibility: 'public',
+  is_draft: false,
+
+  // Dates
+  release_date: null,
+  vintage_year: null,
+
+  // Images et variantes
+  images: [],
   variants: [],
-  images: []
+
+  // Statut
+  deleted_at: null
 })
 
-// Données de référence
+const isSubmitting = ref(false)
 const brands = ref([])
 const categories = ref([])
-const availableColors = computed(() => colorsStore.colors || [])
-const availableSizes = computed(() => sizesStore.sizes || [])
-const priceHistory = ref([])
 
-// Modales
-const showVariantModal = ref(false)
-const showCreateBrandModal = ref(false)
-const showCreateCategoryModal = ref(false)
-const showDeleteConfirmModal = ref(false)
-const showActionsMenu = ref(false)
-
-// Formulaires
+// Nouvelle variante
 const newVariant = ref({
   color_id: '',
   size_id: '',
@@ -1425,407 +1216,133 @@ const newVariant = ref({
   main_image_index: null
 })
 
-const deleteConfirmText = ref('')
-
-// Dimensions
-const dimensionsInput = ref({
-  width: 0,
-  height: 0,
-  depth: 0
-})
-
-// Auto-save
-const autoSaveStatus = ref(null)
-const autoSaveMessages = {
-  saving: 'Sauvegarde automatique en cours...',
-  saved: 'Modifications sauvegardées automatiquement',
-  error: 'Erreur lors de la sauvegarde automatique'
-}
-
-// Validation
-const validationErrors = ref([])
-
-// Templates
+// Templates pour instructions d'entretien
 const careInstructionTemplates = [
-  'Lavage machine 30°C',
+  'Lavage 30°C',
   'Lavage à la main',
   'Séchage à l\'air libre',
   'Pas de sèche-linge',
-  'Repassage température moyenne',
-  'Pas de repassage',
-  'Nettoyage à sec uniquement',
-  'Pas de javel'
+  'Repassage doux',
+  'Nettoyage à sec',
+  'Ne pas javelliser',
+  'Séchage à plat'
 ]
 
-// Computed
-const currentPageTitle = computed(() => {
-  return product.value.name ? `Éditer "${product.value.name}"` : 'Édition de produit'
+// Gestion des dimensions
+const dimensionsInput = ref({
+  width: null,
+  height: null,
+  length: null
 })
 
+// Computed properties
+const availableColors = computed(() => colorsStore.colors)
+const availableSizes = computed(() => sizesStore.sizes)
+
 const currentStepNumber = computed(() => {
-  return tabs.value.findIndex(tab => tab.id === activeTab.value) + 1
+  return tabs.findIndex(tab => tab.id === activeTab.value) + 1
 })
 
 const progressPercentage = computed(() => {
-  return (currentStepNumber.value / tabs.value.length) * 100
-})
-
-const totalStock = computed(() => {
-  return product.value.variants?.reduce((total, variant) => total + (variant.stock_quantity || 0), 0) || 0
-})
-
-const discountPercentage = computed(() => {
-  if (!product.value.price || !product.value.discounted_price) return null
-  const discount = ((product.value.price - product.value.discounted_price) / product.value.price) * 100
-  return Math.round(discount)
-})
-
-const profitMargin = computed(() => {
-  if (!product.value.price || !product.value.cost_price) return null
-  const margin = ((product.value.price - product.value.cost_price) / product.value.price) * 100
-  return Math.round(margin)
-})
-
-const dimensionsJsonPreview = computed(() => {
-  return JSON.stringify({
-    width: dimensionsInput.value.width || 0,
-    height: dimensionsInput.value.height || 0,
-    depth: dimensionsInput.value.depth || 0
-  })
+  return (currentStepNumber.value / tabs.length) * 100
 })
 
 const today = computed(() => {
   return new Date().toISOString().split('T')[0]
 })
 
-// Méthodes
-const loadProduct = async () => {
-  try {
-    isLoading.value = true
-    loadError.value = null
-
-    const productId = route.params.productId
-
-    const response = await api.get(`/products/${productId}`)
-    console.log('Produit chargé:', response)
-
-    // Correction: utiliser response.data si la réponse est encapsulée
-    const productData = response.data?.product || response.data || response
-
-    // Vérification et initialisation sécurisée des dimensions
-    const productDimensions = productData.dimensions || {}
-
-    const mockProduct = {
-      ...productData,
-      dimensions: {
-        width: productDimensions.width || 0,
-        height: productDimensions.height || 0,
-        depth: productDimensions.depth || 0
-      },
-      variants: Array.isArray(productData.variants)
-        ? productData.variants.map(variant => ({
-            color_id: variant.color_id,
-            size_id: variant.size_id,
-            stock_quantity: variant.stock_quantity || 0,
-            barcode: variant.barcode || '',
-            main_image_index: variant.main_image_index || 0
-          }))
-        : [],
-      images: Array.isArray(productData.images)
-        ? productData.images.map(img => img.url || img.path || img.image_url || '')
-        : []
-    }
-
-    product.value = { ...mockProduct }
-    originalProduct.value = JSON.parse(JSON.stringify(mockProduct))
-    originalImages.value = [...mockProduct.images]
-    originalPrice.value = mockProduct.price
-
-    // Initialisation sécurisée des dimensionsInput
-    dimensionsInput.value = {
-      width: productDimensions.width || 0,
-      height: productDimensions.height || 0,
-      depth: productDimensions.depth || 0
-    }
-
-    lastModified.value = productData.updated_at
-      ? new Date(productData.updated_at).toLocaleString('fr-FR')
-      : new Date().toLocaleString('fr-FR')
-
-    priceHistory.value = [
-      { date: '2024-01-20', price: 25000 },
-      { date: '2024-01-15', price: 28000 },
-      { date: '2024-01-10', price: 30000 }
-    ]
-  } catch (error) {
-    console.error('Erreur chargement produit:', error)
-    loadError.value = error.response?.data?.message || error.message || 'Impossible de charger le produit'
-  } finally {
-    isLoading.value = false
+const discountPercentage = computed(() => {
+  if (product.value.price && product.value.discounted_price) {
+    const discount = ((product.value.price - product.value.discounted_price) / product.value.price * 100).toFixed(0)
+    return discount > 0 ? discount : null
   }
+  return null
+})
+
+const profitMargin = computed(() => {
+  if (product.value.price && product.value.cost_price) {
+    const margin = ((product.value.price - product.value.cost_price) / product.value.price * 100).toFixed(0)
+    return margin > 0 ? margin : null
+  }
+  return null
+})
+
+const dimensionsJsonPreview = computed(() => {
+  const dims = {}
+  if (dimensionsInput.value.width) dims.width = dimensionsInput.value.width
+  if (dimensionsInput.value.height) dims.height = dimensionsInput.value.height
+  if (dimensionsInput.value.length) dims.length = dimensionsInput.value.length
+  return dims
+})
+
+const totalStock = computed(() => {
+  return product.value.variants.reduce((total, variant) => total + (variant.stock_quantity || 0), 0)
+})
+
+// Méthodes utilitaires pour couleurs et tailles
+const getColorById = (id) => {
+  return availableColors.value.find(color => color.id == id)
 }
 
-const loadReferenceData = async () => {
-  try {
-    // Charger les marques, catégories, couleurs et tailles
-    const [brandsRes, categoriesRes] = await Promise.all([
-      api.get('/brands'),
-      api.get('/categories')
-    ])
-
-    brands.value = brandsRes.data?.data || brandsRes.data || []
-    categories.value = categoriesRes.data?.data || categoriesRes.data || []
-
-    // Charger les couleurs et tailles depuis les stores
-    await Promise.all([
-      colorsStore.fetchColors(),
-      sizesStore.fetchSizes()
-    ])
-
-  } catch (error) {
-    console.error('Erreur lors du chargement des données de référence:', error)
-  }
+const getSizeById = (id) => {
+  return availableSizes.value.find(size => size.id == id)
 }
 
-const updateProduct = async () => {
-  try {
-    isSubmitting.value = true
-    validationErrors.value = []
-
-    const productId = route.params.productId
-
-    // Validation
-    if (!validateForm()) {
-      return
-    }
-
-    // Préparer les données
-    const formData = {
-      ...product.value,
-      dimensions: {
-        width: dimensionsInput.value.width,
-        height: dimensionsInput.value.height,
-        depth: dimensionsInput.value.depth
-      }
-    }
-
-    // Appel API réel
-    const response = await api.put(`/products/${productId}`, formData)
-    console.log('Produit mis à jour : ', response)
-
-    // Marquer comme sauvegardé
-    hasUnsavedChanges.value = false
-    originalProduct.value = JSON.parse(JSON.stringify(product.value))
-
-    // Notification de succès
-    autoSaveStatus.value = 'saved'
-    setTimeout(() => {
-      autoSaveStatus.value = null
-    }, 3000)
-
-    // Rediriger vers la liste des produits
-    router.push({ name: 'products' })
-
-  } catch (error) {
-    console.error('Erreur mise à jour produit:', error)
-    validationErrors.value = [error.response?.data?.message || error.message || 'Erreur lors de la mise à jour']
-  } finally {
-    isSubmitting.value = false
+const getImagePreview = (file) => {
+  if (file instanceof File) {
+    return URL.createObjectURL(file)
   }
+  return 'https://stagging.bylin-style.com' + file.url // Si c'est déjà une URL
 }
 
-const saveDraft = async () => {
-  try {
-    isSavingDraft.value = true
-    autoSaveStatus.value = 'saving'
-
-    // Simuler l'appel API
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    hasUnsavedChanges.value = false
-    autoSaveStatus.value = 'saved'
-
-    setTimeout(() => {
-      autoSaveStatus.value = null
-    }, 3000)
-
-  } catch (error) {
-    autoSaveStatus.value = 'error'
-    setTimeout(() => {
-      autoSaveStatus.value = null
-    }, 3000)
-  } finally {
-    isSavingDraft.value = false
-  }
+const isVariantExists = (colorId, sizeId) => {
+  if (!colorId || !sizeId) return false
+  return product.value.variants.some(v => v.color_id == colorId && v.size_id == sizeId)
 }
 
-const deleteProduct = async () => {
-  try {
-    isDeletingProduct.value = true
-
-    // Appel API réel
-    await api.delete(`/products/${product.value.id}`)
-
-    // Rediriger vers la liste des produits
-    router.push({ name: 'products' })
-
-  } catch (error) {
-    console.error('Erreur lors de la suppression:', error)
-    validationErrors.value = [error.response?.data?.message || error.message || 'Erreur lors de la suppression']
-  } finally {
-    isDeletingProduct.value = false
-    showDeleteConfirmModal.value = false
-  }
-}
-
-const validateForm = () => {
-  const errors = []
-
-  if (!product.value.name?.trim()) {
-    errors.push('Le nom du produit est requis')
-  }
-
-  if (!product.value.category_id) {
-    errors.push('La catégorie est requise')
-  }
-
-  if (!product.value.short_description?.trim()) {
-    errors.push('La description courte est requise')
-  }
-
-  if (!product.value.full_description?.trim()) {
-    errors.push('La description complète est requise')
-  }
-
-  if (!product.value.price || product.value.price <= 0) {
-    errors.push('Le prix de vente est requis et doit être positif')
-  }
-
-  if (!product.value.material?.trim()) {
-    errors.push('Le matériau est requis')
-  }
-
-  if (!product.value.season) {
-    errors.push('La saison est requise')
-  }
-
-  if (!product.value.weight_grams || product.value.weight_grams <= 0) {
-    errors.push('Le poids est requis et doit être positif')
-  }
-
-  if (!product.value.country_of_origin?.trim()) {
-    errors.push('Le pays d\'origine est requis')
-  }
-
-  if (!product.value.care_instructions?.trim()) {
-    errors.push('Les instructions d\'entretien sont requises')
-  }
-
-  if (!dimensionsInput.value.width || !dimensionsInput.value.height || !dimensionsInput.value.depth) {
-    errors.push('Toutes les dimensions sont requises')
-  }
-
-  validationErrors.value = errors
-  return errors.length === 0
-}
-
-const markAsModified = () => {
-  hasUnsavedChanges.value = true
-}
-
-// Navigation entre onglets
-const nextTab = () => {
-  const currentIndex = tabs.value.findIndex(tab => tab.id === activeTab.value)
-  if (currentIndex < tabs.value.length - 1) {
-    activeTab.value = tabs.value[currentIndex + 1].id
-  }
-}
-
-const prevTab = () => {
-  const currentIndex = tabs.value.findIndex(tab => tab.id === activeTab.value)
-  if (currentIndex > 0) {
-    activeTab.value = tabs.value[currentIndex - 1].id
-  }
-}
-
-const isTabCompleted = (tabId) => {
-  // Logique pour déterminer si un onglet est complété
-  switch (tabId) {
-    case 'info':
-      return product.value.name && product.value.category_id && product.value.short_description
-    case 'price':
-      return product.value.price > 0
-    case 'details':
-      return product.value.material && product.value.season && product.value.weight_grams
-    case 'variants':
-      return product.value.variants?.length > 0
-    case 'images':
-      return product.value.images?.length > 0
-    default:
-      return false
-  }
-}
-
-// Gestion des variantes
+// Méthodes de gestion des variantes
 const addVariant = () => {
-  if (!newVariant.value.color_id || !newVariant.value.size_id) return
+  if (isVariantExists(newVariant.value.color_id, newVariant.value.size_id)) {
+    alert('Cette combinaison couleur/taille existe déjà')
+    return
+  }
 
-  const variant = {
+  product.value.variants.push({
     color_id: parseInt(newVariant.value.color_id),
     size_id: parseInt(newVariant.value.size_id),
-    stock_quantity: newVariant.value.stock_quantity,
-    barcode: newVariant.value.barcode || generateBarcode(),
+    stock_quantity: newVariant.value.stock_quantity || 0,
+    barcode: newVariant.value.barcode || '',
     main_image_index: newVariant.value.main_image_index
-  }
+  })
 
-  if (!product.value.variants) {
-    product.value.variants = []
-  }
-
-  product.value.variants.push(variant)
-  markAsModified()
   closeVariantModal()
 }
 
 const removeVariant = (index) => {
   product.value.variants.splice(index, 1)
-  markAsModified()
-}
-
-const isVariantExists = (colorId, sizeId) => {
-  if (!colorId || !sizeId || !product.value.variants) return false
-  return product.value.variants.some(v => v.color_id === colorId && v.size_id === sizeId)
 }
 
 const generateAllVariants = () => {
-  const newVariants = []
+  if (confirm('Cela va remplacer toutes les variantes existantes. Continuer ?')) {
+    product.value.variants = []
 
-  availableColors.value.forEach(color => {
-    availableSizes.value.forEach(size => {
-      if (!isVariantExists(color.id, size.id)) {
-        newVariants.push({
+    availableColors.value.forEach(color => {
+      availableSizes.value.forEach(size => {
+        product.value.variants.push({
           color_id: color.id,
           size_id: size.id,
           stock_quantity: 0,
-          barcode: generateBarcode(),
+          barcode: '',
           main_image_index: null
         })
-      }
+      })
     })
-  })
-
-  if (!product.value.variants) {
-    product.value.variants = []
   }
-
-  product.value.variants.push(...newVariants)
-  markAsModified()
 }
 
 const clearAllVariants = () => {
   if (confirm('Êtes-vous sûr de vouloir supprimer toutes les variantes ?')) {
     product.value.variants = []
-    markAsModified()
   }
 }
 
@@ -1840,492 +1357,510 @@ const closeVariantModal = () => {
   }
 }
 
-// Utilitaires
-const getColorById = (id) => {
-  return availableColors.value.find(color => color.id === id)
-}
-
-const getSizeById = (id) => {
-  return availableSizes.value.find(size => size.id === id)
-}
-
-const getImagePreview = (image) => {
-  if (typeof image === 'string') return image
-  if (image instanceof File) return URL.createObjectURL(image)
-  return ''
-}
-
-const getImageUrl = (imagePath) => {
-  if (!imagePath) return ''
-  if (imagePath.startsWith('http')) return imagePath
-  return "https://stagging.bylin-style.com" + imagePath
-}
-
-const generateBarcode = () => {
-  return 'PRD' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase()
-}
-
-const calculateMargin = () => {
-  markAsModified()
-}
-
-const calculateDiscount = () => {
-  markAsModified()
+// Méthodes pour l'UX
+const isTabCompleted = (tabId) => {
+  switch (tabId) {
+    case 'info':
+      return product.value.name && product.value.category_id && product.value.short_description && product.value.full_description
+    case 'price':
+      return product.value.price > 0
+    case 'details':
+      return product.value.material && product.value.care_instructions && product.value.season &&
+             product.value.country_of_origin && product.value.weight_grams > 0 &&
+             Object.keys(product.value.dimensions).length > 0
+    case 'images':
+      return product.value.images && product.value.images.length > 0
+    case 'variants':
+      return product.value.variants.length > 0
+    default:
+      return false
+  }
 }
 
 const addCareInstruction = (instruction) => {
-  if (product.value.care_instructions) {
-    product.value.care_instructions += ', ' + instruction
-  } else {
-    product.value.care_instructions = instruction
+  const current = product.value.care_instructions
+  if (current && !current.includes(instruction)) {
+    product.value.care_instructions = current + (current.endsWith('.') ? ' ' : '. ') + instruction + '.'
+  } else if (!current) {
+    product.value.care_instructions = instruction + '.'
   }
-  markAsModified()
 }
 
-const regenerateSlug = () => {
-  // Générer un nouveau slug basé sur le nom
-  const slug = product.value.name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-
-  product.value.slug = slug
-  markAsModified()
+const calculateDiscount = () => {
+  // Calculé automatiquement par le computed discountPercentage
 }
 
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('fr-FR', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  })
+const calculateMargin = () => {
+  // Calculé automatiquement par le computed profitMargin
 }
 
-// Actions du menu flottant
-const viewProduct = () => {
-  // Ouvrir la page produit dans un nouvel onglet
-  const routeData = router.resolve({ name: 'product', params: { slug: product.value.slug } })
-  window.open(routeData.href, '_blank')
-}
+// Génération automatique du slug
+watch(() => product.value.name, (newName) => {
+  if (newName) {
+    product.value.slug = newName
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim('-')
+  }
+})
 
-const duplicateProduct = async () => {
+// Mise à jour des dimensions
+watch(dimensionsInput, (newDimensions) => {
+  product.value.dimensions = { ...dimensionsJsonPreview.value }
+}, { deep: true })
+
+// Sauvegarde automatique
+let autoSaveTimeout = null
+watch(product, () => {
+  if (autoSaveTimeout) clearTimeout(autoSaveTimeout)
+  autoSaveTimeout = setTimeout(() => {
+    autoSaveDraft()
+  }, 30000)
+}, { deep: true })
+
+const autoSaveDraft = async () => {
+  if (!product.value.name) return
+
   try {
-    // Créer une copie du produit
-    const duplicatedProduct = {
-      ...product.value,
-      id: null,
-      name: product.value.name + ' (Copie)',
-      slug: product.value.slug + '-copie',
-      status: 'draft'
+    autoSaveStatus.value = 'saved'
+    setTimeout(() => {
+      autoSaveStatus.value = null
+    }, 3000)
+  } catch (error) {
+    autoSaveStatus.value = 'error'
+    setTimeout(() => {
+      autoSaveStatus.value = null
+    }, 5000)
+  }
+}
+
+const saveDraft = async () => {
+  isSavingDraft.value = true
+  await autoSaveDraft()
+  isSavingDraft.value = false
+}
+
+// Charger les données nécessaires
+const loadFormData = async () => {
+  try {
+    const [brandsRes, categoriesRes] = await Promise.all([
+      api.get('/brands'),
+      api.get('/categories'),
+      colorsStore.fetchColors(),
+      sizesStore.fetchSizes()
+    ])
+
+    brands.value = brandsRes.data?.data || brandsRes.data || []
+    categories.value = categoriesRes.data?.data || categoriesRes.data || []
+  } catch (error) {
+    console.error('Erreur lors du chargement des données:', error)
+  }
+}
+
+// Charger le produit à modifier
+const loadProduct = async (productId) => {
+  try {
+    const response = await api.get(`/products/${productId}`)
+    const productData = response.product || response.data.product || response.data
+
+    // Mapper les données du produit
+    product.value = {
+      id: productData.id,
+      name: productData.name || '',
+      reference: productData.reference || '',
+      sku: productData.sku || '',
+      type: productData.type || 'new',
+      category_id: productData.category_id || null,
+      brand_id: productData.brand_id || null,
+      gender: productData.gender || 'unisex',
+      is_preorder: productData.is_preorder || false,
+      preorder_deadline: productData.preorder_deadline || null,
+      expected_ship_date: productData.expected_ship_date || null,
+      price: productData.price || 0,
+      discounted_price: productData.discounted_price || null,
+      cost_price: productData.cost_price || null,
+      is_flash_sale: productData.is_flash_sale || false,
+      short_description: productData.short_description || '',
+      full_description: productData.full_description || '',
+      material: productData.material || '',
+      care_instructions: productData.care_instructions || '',
+      season: productData.season || '',
+      weight_grams: productData.weight_grams || 0,
+      dimensions: productData.dimensions || {},
+      country_of_origin: productData.country_of_origin || '',
+      is_featured: productData.is_featured || false,
+      is_trending: productData.is_trending || false,
+      is_draft: productData.is_draft || false,
+      release_date: productData.release_date || null,
+      vintage_year: productData.vintage_year || null,
+      images: productData.images || [],
+      variants: productData.variants || [],
+      deleted_at: productData.deleted_at || null
     }
 
-    // Rediriger vers la page d'ajout avec les données pré-remplies
-    router.push({
-      name: 'products.create',
-      state: { duplicatedProduct }
-    })
-  } catch (error) {
-    console.error('Erreur lors de la duplication:', error)
-  } finally {
-    showActionsMenu.value = false
-  }
-}
-
-const exportProduct = () => {
-  try {
-    const dataToExport = {
-      product: product.value,
-      variants: product.value.variants,
-      metadata: {
-        exported_at: new Date().toISOString(),
-        exported_by: 'Admin User'
+    // Mettre à jour les dimensions
+    if (productData.dimensions) {
+      dimensionsInput.value = {
+        width: productData.dimensions.width || null,
+        height: productData.dimensions.height || null,
+        length: productData.dimensions.length || null
       }
     }
 
-    const blob = new Blob([JSON.stringify(dataToExport, null, 2)], {
-      type: 'application/json'
-    })
+    if (productData.variants) {
+      product.value.variants = productData.variants.map(variant => {
+        return {
+          ...variant,
+          // Si main_image_id existe, le conserver, sinon utiliser main_image_index
+          main_image_index: variant.main_image_id
+            ? getImageIndexById(variant.main_image_id, productData.images)
+            : variant.main_image_index
+        }
+      })
+    }
 
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `product-${product.value.slug}-${Date.now()}.json`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    // Sauvegarder les images existantes
+    existingImages.value = productData.images || []
 
+    currentPageTitle.value = `Modifier: ${productData.name}`
   } catch (error) {
-    console.error('Erreur lors de l\'export:', error)
-  } finally {
-    showActionsMenu.value = false
+    console.error('Erreur lors du chargement du produit:', error)
+    validationErrors.value = ['Erreur lors du chargement du produit']
   }
 }
 
-const viewProductHistory = () => {
-  // Rediriger vers la page d'historique du produit
-  router.push({
-    name: 'products.history',
-    params: { id: product.value.id }
+// Méthode utilitaire pour trouver l'index d'une image par son ID
+const getImageIndexById = (imageId, images) => {
+  if (!images || !imageId || !Array.isArray(images)) {
+    console.warn('Paramètres invalides pour getImageIndexById:', { imageId, images })
+    return null
+  }
+
+  // Rechercher l'index de l'image par son ID
+  const index = images.findIndex(img => {
+    // Gérer différents formats d'image (objet avec id, ou string)
+    if (typeof img === 'object' && img !== null) {
+      return img.id == imageId // == pour gérer les strings et numbers
+    }
+    return false
   })
-  showActionsMenu.value = false
+
+  console.log('Recherche image ID:', {
+    imageIdRecherche: imageId,
+    imagesDisponibles: images.map(img => ({ id: img.id, url: img.url })),
+    indexTrouve: index
+  })
+
+  return index >= 0 ? index : null
 }
 
-// Gestion des modales de création rapide
+// Gestion des modales
 const handleBrandCreated = (newBrand) => {
   brands.value.push(newBrand)
   product.value.brand_id = newBrand.id
-  markAsModified()
+  showCreateBrandModal.value = false
 }
 
 const handleCategoryCreated = (newCategory) => {
   categories.value.push(newCategory)
   product.value.category_id = newCategory.id
-  markAsModified()
+  showCreateCategoryModal.value = false
 }
 
-// Auto-save avec debounce
-let autoSaveTimeout = null
-const autoSave = () => {
-  if (!hasUnsavedChanges.value) return
+// Navigation entre onglets
+const nextTab = () => {
+  if (!validateCurrentTab()) return
 
-  clearTimeout(autoSaveTimeout)
-  autoSaveTimeout = setTimeout(() => {
-    saveDraft()
-  }, 5000) // Sauvegarde automatique après 5 secondes d'inactivité
-}
-
-// Watchers
-watch(product, () => {
-  markAsModified()
-  autoSave()
-}, { deep: true })
-
-watch(dimensionsInput, () => {
-  product.value.dimensions = {
-    width: dimensionsInput.value.width,
-    height: dimensionsInput.value.height,
-    depth: dimensionsInput.value.depth
+  const currentIndex = tabs.findIndex(tab => tab.id === activeTab.value)
+  if (currentIndex < tabs.length - 1) {
+    activeTab.value = tabs[currentIndex + 1].id
   }
-  markAsModified()
-}, { deep: true })
+}
 
-// Lifecycle
-onMounted(async () => {
-  await Promise.all([
-    loadProduct(),
-    loadReferenceData()
-  ])
-})
+const prevTab = () => {
+  const currentIndex = tabs.findIndex(tab => tab.id === activeTab.value)
+  if (currentIndex > 0) {
+    activeTab.value = tabs[currentIndex - 1].id
+  }
+}
 
-// Prévenir la perte de données
-onBeforeMount(() => {
-  window.addEventListener('beforeunload', (e) => {
-    if (hasUnsavedChanges.value) {
-      e.preventDefault()
-      e.returnValue = ''
+// Validation par onglet
+const validateCurrentTab = () => {
+  validationErrors.value = []
+
+  switch (activeTab.value) {
+    case 'info':
+      if (!product.value.name) validationErrors.value.push('Le nom du produit est requis')
+      if (!product.value.category_id) validationErrors.value.push('La catégorie est requise')
+      if (!product.value.short_description) validationErrors.value.push('La description courte est requise')
+      if (!product.value.full_description) validationErrors.value.push('La description complète est requise')
+      break
+    case 'price':
+      if (product.value.price <= 0) validationErrors.value.push('Le prix doit être supérieur à 0')
+      if (product.value.discounted_price && product.value.discounted_price >= product.value.price) {
+        validationErrors.value.push('Le prix réduit doit être inférieur au prix normal')
+      }
+      break
+    case 'details':
+      if (!product.value.material) validationErrors.value.push('Le matériau est requis')
+      if (!product.value.care_instructions) validationErrors.value.push('Les instructions d\'entretien sont requises')
+      if (!product.value.season) validationErrors.value.push('La saison est requise')
+      if (!product.value.country_of_origin) validationErrors.value.push('Le pays d\'origine est requis')
+      if (product.value.weight_grams <= 0) validationErrors.value.push('Le poids doit être supérieur à 0')
+      if (!dimensionsInput.value.width || !dimensionsInput.value.height || !dimensionsInput.value.length) {
+        validationErrors.value.push('Toutes les dimensions sont requises (largeur, hauteur, profondeur)')
+      }
+      break
+    case 'images':
+      if (!product.value.images || product.value.images.length === 0) {
+        validationErrors.value.push('Au moins une image est requise')
+      }
+      break
+    case 'variants':
+      if (product.value.variants.length === 0) {
+        validationErrors.value.push('Au moins une variante (couleur/taille) est requise')
+      }
+      break
+  }
+
+  return validationErrors.value.length === 0
+}
+
+// Validation du formulaire complet
+const validateForm = () => {
+  validationErrors.value = []
+
+  console.log('Validation du produit:', product.value)
+
+  // Validation de tous les onglets
+  if (!product.value.name) validationErrors.value.push('Le nom du produit est requis')
+  if (!product.value.type) validationErrors.value.push('Le type de produit est requis')
+  if (!product.value.gender) validationErrors.value.push('Le genre est requis')
+  if (!product.value.category_id) validationErrors.value.push('La catégorie est requise')
+  if (!product.value.short_description) validationErrors.value.push('La description courte est requise')
+  if (!product.value.full_description) validationErrors.value.push('La description complète est requise')
+  if (!product.value.material) validationErrors.value.push('Le matériau est requis')
+  if (!product.value.care_instructions) validationErrors.value.push('Les instructions d\'entretien sont requises')
+  if (!product.value.season) validationErrors.value.push('La saison est requise')
+  if (!product.value.country_of_origin) validationErrors.value.push('Le pays d\'origine est requis')
+  if (product.value.price <= 0) validationErrors.value.push('Le prix doit être supérieur à 0')
+  if (product.value.weight_grams <= 0) validationErrors.value.push('Le poids doit être supérieur à 0')
+  if (!dimensionsInput.value.width || !dimensionsInput.value.height || !dimensionsInput.value.length) {
+    validationErrors.value.push('Toutes les dimensions sont requises')
+  }
+  if (product.value.variants.length === 0) {
+    validationErrors.value.push('Au moins une variante est requise')
+  }
+  if (!product.value.images || product.value.images.length === 0) {
+    validationErrors.value.push('Au moins une image est requise')
+  }
+
+  console.log('Erreurs de validation:', validationErrors.value)
+  return validationErrors.value.length === 0
+}
+
+// Soumission du formulaire
+const submitForm = async () => {
+  if (!validateForm()) {
+    // Aller au premier onglet avec erreurs
+    if (validationErrors.value.some(err => err.includes('nom') || err.includes('catégorie') || err.includes('description'))) {
+      activeTab.value = 'info'
+    } else if (validationErrors.value.some(err => err.includes('prix'))) {
+      activeTab.value = 'price'
+    } else if (validationErrors.value.some(err => err.includes('matériau') || err.includes('instructions') || err.includes('saison') || err.includes('pays') || err.includes('poids') || err.includes('dimensions'))) {
+      activeTab.value = 'details'
+    } else if (validationErrors.value.some(err => err.includes('image'))) {
+      activeTab.value = 'images'
+    } else if (validationErrors.value.some(err => err.includes('variante'))) {
+      activeTab.value = 'variants'
     }
-  })
+    return
+  }
+
+try {
+    isSubmitting.value = true
+
+    const formData = new FormData()
+
+    // Préparer les données du produit - CORRECTION: Envoyer les booléens comme 0/1
+    const productData = {
+      // Informations de base
+      name: product.value.name,
+      type: product.value.type,
+      category_id: product.value.category_id,
+      brand_id: product.value.brand_id,
+      gender: product.value.gender,
+
+      // Descriptions
+      short_description: product.value.short_description,
+      full_description: product.value.full_description,
+
+      // Prix
+      price: product.value.price,
+      discounted_price: product.value.discounted_price || null,
+      cost_price: product.value.cost_price || null,
+
+      // Détails
+      material: product.value.material,
+      care_instructions: product.value.care_instructions,
+      season: product.value.season,
+      weight_grams: product.value.weight_grams,
+      dimensions: JSON.stringify(product.value.dimensions),
+      country_of_origin: product.value.country_of_origin,
+
+      // Options booléennes - CORRECTION: Envoyer comme 0/1 pour Laravel
+      is_preorder: product.value.is_preorder ? '1' : '0',
+      is_featured: product.value.is_featured ? '1' : '0',
+      is_trending: product.value.is_trending ? '1' : '0',
+      is_flash_sale: product.value.is_flash_sale ? '1' : '0',
+      is_draft: product.value.is_draft ? '1' : '0',
+
+      // Dates
+      preorder_deadline: product.value.preorder_deadline || null,
+      expected_ship_date: product.value.expected_ship_date || null,
+      release_date: product.value.release_date || null,
+      vintage_year: product.value.vintage_year || null
+    }
+
+    console.log('Données préparées:', productData)
+
+    // Ajouter les champs du produit
+    Object.keys(productData).forEach(key => {
+      const value = productData[key]
+      if (value !== null && value !== undefined && value !== '') {
+        formData.append(key, value.toString())
+      }
+    })
+
+    // Ajouter les nouvelles images
+    if (product.value.images && product.value.images.length > 0) {
+      product.value.images.forEach((file, index) => {
+        if (file instanceof File) {
+          formData.append(`new_images[${index}]`, file)
+        }
+      })
+    }
+
+    // Ajouter les URLs des images existantes
+    if (existingImages.value.length > 0) {
+      existingImages.value.forEach((image, index) => {
+        if (typeof image === 'string' || image.url) {
+          const imageUrl = typeof image === 'string' ? image : image.url
+          formData.append(`images[${index}]`, imageUrl)
+        }
+      })
+    }
+
+    if (product.value.images && product.value.images.length > 0) {
+      product.value.images.forEach((file, index) => {
+        if (file instanceof File) {
+          formData.append(`new_images[${index}]`, file)
+        }
+      })
+    }
+
+    // Ajouter les variantes avec leurs IDs si elles existent
+    product.value.variants.forEach((variant, index) => {
+      if (variant.id) {
+        formData.append(`variants[${index}][id]`, variant.id)
+      }
+      formData.append(`variants[${index}][color_id]`, variant.color_id)
+      formData.append(`variants[${index}][size_id]`, variant.size_id)
+      formData.append(`variants[${index}][stock_quantity]`, variant.stock_quantity || 0)
+
+      if (variant.barcode) {
+        formData.append(`variants[${index}][barcode]`, variant.barcode)
+      }
+
+      // CORRECTION: Envoyer main_image_index pour conversion en ID côté backend
+      if (variant.main_image_index !== null && variant.main_image_index !== undefined) {
+        formData.append(`variants[${index}][main_image_index]`, variant.main_image_index)
+      }
+
+      // CORRECTION: Optionnel - envoyer aussi main_image_id si disponible
+      if (variant.main_image_id) {
+        formData.append(`variants[${index}][main_image_id]`, variant.main_image_id)
+      }
+    })
+
+    // CORRECTION: Utiliser POST avec _method=PUT pour FormData
+    const response = await api.post(`/products/${product.value.id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      },
+      params: {
+        '_method': 'PUT'
+      }
+    })
+
+    console.log(response)
+
+    // Rediriger vers la liste des produits
+    router.push({
+      name: 'products',
+      query: {
+        success: 'Produit mis à jour avec succès'
+      }
+    })
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du produit:', error)
+
+    if (error.response?.status === 422) {
+      console.error('Erreurs de validation détaillées:', error.response.data.errors)
+
+      if (error.response.data.errors) {
+        validationErrors.value = Object.values(error.response.data.errors).flat()
+      } else if (error.response.data.message) {
+        validationErrors.value = [error.response.data.message]
+      }
+    } else if (error.response?.data?.message) {
+      validationErrors.value = [error.response.data.message]
+    } else if (error.response?.data?.errors) {
+      validationErrors.value = Object.values(error.response.data.errors).flat()
+    } else {
+      validationErrors.value = ['Une erreur est survenue lors de la mise à jour du produit']
+    }
+
+    activeTab.value = 'info'
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
+// Initialisation
+onMounted(() => {
+  loadFormData()
+
+  // Charger le produit à modifier depuis l'ID dans la route
+  const productId = route.params.productId
+  if (productId) {
+    loadProduct(productId)
+  }
 })
 
+// Nettoyage lors de la destruction du composant
 onUnmounted(() => {
-  window.removeEventListener('beforeunload', () => {})
-  clearTimeout(autoSaveTimeout)
+  if (autoSaveTimeout) {
+    clearTimeout(autoSaveTimeout)
+  }
 })
 </script>
 
 <style scoped>
-/* Styles personnalisés pour la page d'édition */
-.transition-colors {
-  transition-property: color, background-color, border-color;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
+.animate-spin {
+  animation: spin 1s linear infinite;
 }
 
-.transition-all {
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-/* Animation pour le menu d'actions */
-@keyframes slideUp {
+@keyframes spin {
   from {
-    opacity: 0;
-    transform: translateY(10px);
+    transform: rotate(0deg);
   }
   to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-slideUp {
-  animation: slideUp 0.2s ease-out;
-}
-
-/* Styles pour les champs modifiés */
-.field-modified {
-  border-left: 3px solid #f59e0b;
-  background-color: #fef3c7;
-}
-
-.dark .field-modified {
-  background-color: #451a03;
-  border-color: #d97706;
-}
-
-/* Styles pour les erreurs de validation */
-.error-field {
-  border-color: #ef4444;
-  background-color: #fef2f2;
-}
-
-.dark .error-field {
-  background-color: #450a0a;
-  border-color: #dc2626;
-}
-
-/* Animation de pulsation pour les éléments en cours de sauvegarde */
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Styles pour le menu flottant */
-.floating-menu {
-  backdrop-filter: blur(8px);
-  background-color: rgba(255, 255, 255, 0.95);
-}
-
-.dark .floating-menu {
-  background-color: rgba(31, 41, 55, 0.95);
-}
-
-/* Indicateur de progression personnalisé */
-.progress-bar {
-  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
-  box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
-}
-
-/* Styles pour les badges de statut */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.status-draft {
-  background-color: #f3f4f6;
-  color: #374151;
-}
-
-.status-published {
-  background-color: #dcfce7;
-  color: #166534;
-}
-
-.status-archived {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.dark .status-draft {
-  background-color: #374151;
-  color: #d1d5db;
-}
-
-.dark .status-published {
-  background-color: #065f46;
-  color: #6ee7b7;
-}
-
-.dark .status-archived {
-  background-color: #92400e;
-  color: #fbbf24;
-}
-
-/* Styles pour les sections d'onglets */
-.tab-section {
-  min-height: 400px;
-}
-
-/* Animation d'entrée pour les sections */
-.tab-enter-active,
-.tab-leave-active {
-  transition: all 0.3s ease;
-}
-
-.tab-enter-from {
-  opacity: 0;
-  transform: translateX(30px);
-}
-
-.tab-leave-to {
-  opacity: 0;
-  transform: translateX(-30px);
-}
-
-/* Styles responsifs */
-@media (max-width: 768px) {
-  .tab-navigation {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .tab-step {
-    justify-content: flex-start;
-  }
-
-  .floating-menu {
-    bottom: 1rem;
-    right: 1rem;
-  }
-}
-
-/* Styles pour les tableaux sur mobile */
-@media (max-width: 640px) {
-  .variants-table {
-    font-size: 0.875rem;
-  }
-
-  .variants-table th,
-  .variants-table td {
-    padding: 0.5rem 0.25rem;
-  }
-}
-
-/* Styles pour l'édition inline */
-.inline-edit {
-  border: 1px solid transparent;
-  border-radius: 0.375rem;
-  padding: 0.25rem 0.5rem;
-  transition: all 0.15s ease;
-}
-
-.inline-edit:hover {
-  border-color: #d1d5db;
-  background-color: #f9fafb;
-}
-
-.inline-edit:focus {
-  border-color: #3b82f6;
-  background-color: #ffffff;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.dark .inline-edit:hover {
-  border-color: #4b5563;
-  background-color: #374151;
-}
-
-.dark .inline-edit:focus {
-  border-color: #3b82f6;
-  background-color: #1f2937;
-}
-
-/* Styles pour les indicateurs de stock */
-.stock-indicator {
-  position: relative;
-  overflow: hidden;
-}
-
-.stock-low {
-  color: #dc2626;
-}
-
-.stock-medium {
-  color: #d97706;
-}
-
-.stock-high {
-  color: #059669;
-}
-
-/* Animation pour les notifications */
-.notification-enter-active {
-  transition: all 0.3s ease;
-}
-
-.notification-leave-active {
-  transition: all 0.3s ease;
-}
-
-.notification-enter-from {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-
-.notification-leave-to {
-  opacity: 0;
-  transform: translateY(-20px);
-}
-
-/* Styles pour la comparaison d'images */
-.image-comparison {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.image-comparison-item {
-  text-align: center;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  border: 2px dashed #d1d5db;
-}
-
-.image-comparison-item.changed {
-  border-color: #f59e0b;
-  background-color: #fef3c7;
-}
-
-.dark .image-comparison-item.changed {
-  background-color: #451a03;
-  border-color: #d97706;
-}
-
-/* Accessibilité */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* Impression */
-@media print {
-  .floating-menu,
-  .navigation-buttons,
-  .action-buttons {
-    display: none !important;
-  }
-
-  .tab-section {
-    display: block !important;
-  }
-
-  .no-print {
-    display: none !important;
+    transform: rotate(360deg);
   }
 }
 </style>

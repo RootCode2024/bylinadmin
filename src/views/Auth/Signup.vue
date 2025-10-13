@@ -357,7 +357,7 @@
             <common-grid-shape />
             <div class="flex flex-col items-center max-w-xs">
               <router-link to="/" class="block mb-4">
-                <img src="/images/logo/auth-logo.svg" alt="Logo" class="w-48" />
+                <img src="/logo.png" alt="Logo" class="w-48" />
               </router-link>
               <p class="text-center font-light text-gray-400 dark:text-white/60">
                 Panel Administration de

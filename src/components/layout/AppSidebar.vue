@@ -19,16 +19,16 @@
         !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
       ]"
     >
-      <router-link to="/">
+      <router-link to="/" class="flex justify-center">
         <span
           v-if="isExpanded || isHovered || isMobileOpen"
           class="ml-2 text-lg font-semibold text-gray-900 dark:text-white"
-          >Bylin</span
+          ><img src="/logo.png" alt="logo Bylin" class="w-32 h-32"></span
         >
         <span
           v-else
           class="ml-2 text-lg font-semibold text-gray-900 dark:text-white"
-          >B</span
+          >b</span
         >
       </router-link>
     </div>
@@ -148,6 +148,7 @@
                             },
                           ]"
                         >
+                        <component :is="subItem.icon" />
                           {{ subItem.name }}
                           <span class="flex items-center gap-1 ml-auto">
                             <span
@@ -216,8 +217,10 @@ import {
   TableIcon,
   ListIcon,
   PlugInIcon,
-  // BanknotesIcon 
+  // BanknotesIcon
 } from "../../icons";
+
+import { PackageOpen, Users, Truck, Landmark, Boxes, List, PackagePlus, Bookmark, Palette, UndoDot, AlarmCheck, MessageCircleMore, Star, TvMinimalPlay, MonitorDown, Barcode } from "lucide-vue-next"
 import SidebarWidget from "./SidebarWidget.vue";
 import BoxCubeIcon from "@/icons/BoxCubeIcon.vue";
 import { useSidebar } from "@/composables/useSidebar";
@@ -236,37 +239,56 @@ const menuGroups = [
         path: "/",
       },
       {
-        icon: CalenderIcon,
+        icon: PackageOpen,
         name: "Commandes",
         subItems: [
-          {name: "Liste des commandes", path: "/orders", pro: false},
-          // {name: "Gestion des retours", path: "/form-elements", pro: false},
+          {name: "Liste des commandes", path: "/orders", pro: false, icon: List },
+          {name: "Liste des précommandes", path: "/form", pro: false, icon: AlarmCheck },
+          {name: "Gestion des retours", path: "/form-elements", pro: false, icon: UndoDot },
         ],
       },
       {
-        icon: UserCircleIcon,
+        icon: Barcode,
         name: "Produits ",
         subItems: [
-          {name: "Liste des produits", path: "/products", pro: false},
-          {name: "Ajout d’un produit", path: "/add-product", pro: false},
-          // {name: "Gestion des stocks", path: "/gestion-stock", pro: false},
-          {name: "Catégories & Marques", path: "/categories_and_brands", pro: false},
-          {name: "Couleurs & Tailles", path: "/attributes", pro: false},
+          {name: "Liste des produits", path: "/products", pro: false, icon: List },
+          {name: "Ajout d’un produit", path: "/add-product", pro: false, icon: PackagePlus },
+          {name: "Catégories & Marques", path: "/categories_and_brands", pro: false, icon: Bookmark },
+          {name: "Couleurs & Tailles", path: "/attributes", pro: false, icon: Palette },
           // {name: "Promotions et offres", path: "/form-elements", pro: false},
         ],
       },
       {
-        name: "Clients",
-        icon: ListIcon,
+        icon: Boxes,
+        name: "Collections ",
         subItems: [
-          { name: "Liste des clients", path: "/customers", pro: false },
-          { name: "Messagerie", path: "/messaging", pro: false },
-          { name: "Avis clients", path: "/products/reviews", pro: false },
+          {name: "Liste des collections", path: "/collections", pro: false, icon: Boxes },
+          {name: "Nouvelle collection", path: "/add-product", pro: false, icon: PackagePlus },
+          {name: "Prochaine collection", path: "#", pro: false, icon: Bookmark },
+          {name: "Budgets", path: "#", pro: false, icon: Palette },
+          // {name: "Promotions et offres", path: "/form-elements", pro: false},
+        ],
+      },
+      {
+        icon: TvMinimalPlay,
+        name: "Tutoriels",
+        subItems: [
+          {name: "Liste des tutoriels", path: "/tutorials", pro: false, icon: List },
+          {name: "Ajout d’un tutoriel", path: "/add-tutorial", pro: false, icon: MonitorDown },
+        ],
+      },
+      {
+        name: "Clients",
+        icon: Users,
+        subItems: [
+          { name: "Liste des clients", path: "/customers", pro: false, icon: List },
+          { name: "Messagerie", path: "/messaging", pro: false, icon: MessageCircleMore },
+          { name: "Avis clients", path: "/products/reviews", pro: false, icon: Star },
         ],
       },
       {
         name: "Livraison",
-        icon: TableIcon,
+        icon: Truck,
         subItems: [
           { name: "Paramètres de livraison", path: "/shipping-settings", pro: false },
           { name: "Suivi des expéditions", path: "/shipping-tracking", pro: false },
@@ -276,7 +298,7 @@ const menuGroups = [
       },
       {
         name: "Paiements et Facturation",
-        icon: TableIcon,
+        icon: Landmark,
         subItems: [
           { name: "Transactions", path: "/transactions", pro: false },
           { name: "Remboursements", path: "/refunds", pro: false },

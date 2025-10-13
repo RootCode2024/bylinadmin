@@ -27,12 +27,6 @@ api.interceptors.request.use(
     // Gestion du token d'authentification
     if (authStore.token) {
       config.headers.Authorization = `Bearer ${authStore.token}`
-
-      // Invalidate le token si expiré (préventif)
-      if (authStore.isTokenExpired) {
-        authStore.logout()
-        throw new axios.Cancel('Token expiré - Déconnexion automatique')
-      }
     }
 
     if (config.data instanceof FormData) {

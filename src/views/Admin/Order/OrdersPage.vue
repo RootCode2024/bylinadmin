@@ -8,33 +8,33 @@
         <StatCard
           title="Commandes totales"
           :value="totalOrders"
-          icon="📦"
+          icon="ShoppingBag"
           :trend="stats.orderTrend"
         />
         <StatCard
           title="En traitement"
           :value="stats.processingCount"
-          icon="⏳"
+          icon="PackageOpen"
           trend="5%"
         />
         <StatCard
           title="Assignées"
           :value="stats.assignedCount"
-          icon="🚚"
+          icon="Handshake"
           trend="12%"
           trend-positive
         />
         <StatCard
           title="Expédiées"
           :value="stats.shippedCount"
-          icon="fly"
+          icon="Truck"
           trend="8%"
           trend-positive
         />
         <StatCard
           title="Chiffre d'affaires"
           :value="formatCurrency(totalRevenue)"
-          icon="💰"
+          icon="Percent"
           trend="8%"
           trend-positive
         />
@@ -174,10 +174,10 @@
                 {{ (pagination.currentPage - 1) * pagination.perPage + index + 1 }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                <div>
-                  #{{ order.order_number }}
-                  <div v-if="order.shipment?.tracking_number" class="text-xs text-gray-500 dark:text-gray-400">
-                    📦 {{ order.shipment.tracking_number }}
+                <div class="space-y-4">
+                  <div>#{{ order.order_number }}</div>
+                  <div v-if="order.shipment?.tracking_number" class="text-xs text-gray-500 dark:text-gray-400 flex space-x-2.5">
+                    <ShoppingCart class="w-4 h-4" /> <span>{{ order.shipment.tracking_number }}</span>
                   </div>
                 </div>
               </td>
@@ -307,6 +307,7 @@ import ShippingModal from '@/components/orders/ShippingModal.vue'
 import { useOrdersStore } from '@/stores/orders'
 import { useShippingStore } from '@/stores/shippings'
 import { EyeIcon, ChatBubbleLeftRightIcon, TruckIcon } from '@heroicons/vue/24/outline'
+import { ShoppingCart } from 'lucide-vue-next'
 
 const currentPageTitle = ref("Liste des Commandes")
 

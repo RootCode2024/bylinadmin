@@ -84,7 +84,7 @@
           class="border-l-4 p-3 text-sm"
         >
           <div class="flex items-center">
-            <SpinnerIcon v-if="autoSaveStatus === 'saving'" class="w-4 h-4 mr-2 animate-spin" />
+            <ArrowPathIcon v-if="autoSaveStatus === 'saving'" class="w-4 h-4 mr-2 animate-spin" />
             <CheckCircleIcon v-else-if="autoSaveStatus === 'saved'" class="w-4 h-4 mr-2" />
             <ExclamationCircleIcon v-else class="w-4 h-4 mr-2" />
             <span>
@@ -118,31 +118,78 @@
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                   Type de produit <span class="text-red-500">*</span>
                 </label>
-                <select
-                  v-model="product.type"
-                  required
-                  class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                >
-                  <option value="new">🆕 Neuf</option>
-                  <option value="vintage">🕰️ Vintage</option>
-                  <option value="byl_in_clothing">👕 Bylin</option>
-                </select>
+
+                <Listbox v-model="product.type">
+                  <div class="relative">
+                    <!-- Bouton -->
+                    <ListboxButton
+                      class="w-full flex items-center justify-between border rounded-lg p-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    >
+                      <span class="flex items-center gap-2">
+                        <component :is="selectedType.icon" class="w-5 h-5 text-blue-600" />
+                        {{ selectedType.label }}
+                      </span>
+                      <ChevronDownIcon class="w-4 h-4 text-gray-500" />
+                    </ListboxButton>
+
+                    <!-- Liste d'options -->
+                    <ListboxOptions
+                      class="absolute z-10 mt-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg"
+                    >
+                      <ListboxOption
+                        v-for="option in productTypes"
+                        :key="option.value"
+                        :value="option.value"
+                        class="cursor-pointer flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        <component :is="option.icon" class="w-5 h-5 text-blue-600" />
+                        {{ option.label }}
+                      </ListboxOption>
+                    </ListboxOptions>
+                  </div>
+                </Listbox>
               </div>
 
               <div>
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                   Genre <span class="text-red-500">*</span>
                 </label>
-                <select
-                  v-model="product.gender"
-                  required
-                  class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                >
-                  <option value="man">👨 Homme</option>
-                  <option value="woman">👩 Femme</option>
-                  <option value="unisex">👫 Unisexe</option>
-                  <option value="child">🧒 Enfant</option>
-                </select>
+                
+                <Listbox v-model="product.gender">
+                  <div class="relative">
+                    <ListboxButton
+                      class="w-full flex items-center justify-between border rounded-lg p-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    >
+                      <span class="flex items-center gap-2">
+                        <component :is="selectedGender.icon" class="w-5 h-5 text-blue-600" />
+                        {{ selectedGender.label }}
+                      </span>
+                      <ChevronDownIcon class="w-4 h-4 text-gray-500" />
+                    </ListboxButton>
+                    <TransitionRoot
+                      enter="transition ease-out duration-100"
+                      enter-from="opacity-0 translate-y-1"
+                      enter-to="opacity-100 translate-y-0"
+                      leave="transition ease-in duration-75"
+                      leave-from="opacity-100 translate-y-0"
+                      leave-to="opacity-0 translate-y-1"
+                    >
+                      <ListboxOptions
+                        class="absolute z-10 mt-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg"
+                      >
+                        <ListboxOption
+                          v-for="option in genders"
+                          :key="option.value"
+                          :value="option.value"
+                          class="cursor-pointer flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        >
+                          <component :is="option.icon" class="w-5 h-5 text-blue-600" />
+                          {{ option.label }}
+                        </ListboxOption>
+                      </ListboxOptions>
+                    </TransitionRoot>
+                  </div>
+                </Listbox>
               </div>
 
               <!-- Marque et Catégorie -->
@@ -151,15 +198,53 @@
                   Marque
                 </label>
                 <div class="relative">
-                  <select
-                    v-model="product.brand_id"
-                    class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  >
-                    <option :value="null">Aucune marque</option>
-                    <option v-for="brand in brands" :key="brand.id" :value="brand.id">
-                      {{ brand.name }}
-                    </option>
-                  </select>
+                  <Listbox v-model="product.brand_id">
+                    <div class="relative">
+                      <ListboxButton
+                        class="w-full flex items-center justify-between border rounded-lg p-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      >
+                        <span class="flex items-center gap-2">
+                          <img 
+                            v-if="selectedBrand.logo" 
+                            :src="selectedBrand.logo" 
+                            :alt="selectedBrand.label"
+                            class="w-12 h-12 object-contain rounded"
+                          />
+                          <component v-else :is="selectedBrand.icon" class="w-5 h-5 text-blue-600" />
+                          {{ selectedBrand.label }}
+                        </span>
+                        <ChevronDownIcon class="w-4 h-4 text-gray-500" />
+                      </ListboxButton>
+                      <TransitionRoot
+                        enter="transition ease-out duration-100"
+                        enter-from="opacity-0 translate-y-1"
+                        enter-to="opacity-100 translate-y-0"
+                        leave="transition ease-in duration-75"
+                        leave-from="opacity-100 translate-y-0"
+                        leave-to="opacity-0 translate-y-1"
+                      >
+                        <ListboxOptions
+                          class="absolute z-10 mt-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                        >
+                          <ListboxOption
+                            v-for="option in apiBrands"
+                            :key="option.id"
+                            :value="option.id"
+                            class="cursor-pointer flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          >
+                            <img 
+                              v-if="option.logo_url" 
+                              :src="option.logo_url" 
+                              :alt="option.name"
+                              class="w-12 h-12 object-contain rounded"
+                            />
+                            <component v-else :is="Factory" class="w-5 h-5 text-blue-600" />
+                            {{ option.name }}
+                          </ListboxOption>
+                        </ListboxOptions>
+                      </TransitionRoot>
+                    </div>
+                  </Listbox>
                   <button
                     type="button"
                     @click="showCreateBrandModal = true"
@@ -175,16 +260,41 @@
                   Catégorie <span class="text-red-500">*</span>
                 </label>
                 <div class="relative">
-                  <select
-                    v-model="product.category_id"
-                    required
-                    class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  >
-                    <option :value="null">Sélectionner une catégorie</option>
-                    <option v-for="category in categories" :key="category.id" :value="category.id">
-                      {{ category.name }}
-                    </option>
-                  </select>
+                  <Listbox v-model="product.category_id">
+                    <div class="relative">
+                      <ListboxButton
+                        class="w-full flex items-center justify-between border rounded-lg p-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      >
+                        <span class="flex items-center gap-2">
+                          <component :is="selectedCategory.icon" class="w-5 h-5 text-blue-600" />
+                          {{ selectedCategory.label }}
+                        </span>
+                        <ChevronDownIcon class="w-4 h-4 text-gray-500" />
+                      </ListboxButton>
+                      <TransitionRoot
+                        enter="transition ease-out duration-100"
+                        enter-from="opacity-0 translate-y-1"
+                        enter-to="opacity-100 translate-y-0"
+                        leave="transition ease-in duration-75"
+                        leave-from="opacity-100 translate-y-0"
+                        leave-to="opacity-0 translate-y-1"
+                      >
+                        <ListboxOptions
+                          class="absolute z-10 mt-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                        >
+                          <ListboxOption
+                            v-for="option in apiCategories"
+                            :key="option.id"
+                            :value="option.id"
+                            class="cursor-pointer flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          >
+                            <component :is="getCategoryIcon(option.icon)" class="w-5 h-5 text-blue-600" />
+                            {{ option.name }}
+                          </ListboxOption>
+                        </ListboxOptions>
+                      </TransitionRoot>
+                    </div>
+                  </Listbox>
                   <button
                     type="button"
                     @click="showCreateCategoryModal = true"
@@ -239,22 +349,22 @@
               <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
                 <label class="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                   <input v-model="product.is_featured" type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                  <span class="ml-3 text-sm font-medium text-gray-900 dark:text-white">⭐ Produit vedette</span>
+                  <span class="flex ml-3 space-x-2 text-sm font-medium text-gray-900 dark:text-white items-end"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles-icon lucide-sparkles"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></svg> <strong>Produit vedette</strong></span>
                 </label>
 
                 <label class="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                   <input v-model="product.is_trending" type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                  <span class="ml-3 text-sm font-medium text-gray-900 dark:text-white">🔥 Tendance</span>
+                  <span class="flex ml-3 space-x-2 text-sm font-medium text-gray-900 dark:text-white items-end"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flame-icon lucide-flame"><path d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"/></svg> <strong>Tendance</strong></span>
                 </label>
 
                 <label class="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                   <input v-model="product.is_preorder" type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                  <span class="ml-3 text-sm font-medium text-gray-900 dark:text-white">📅 Précommande</span>
+                  <span class="flex ml-3 space-x-2 text-sm font-medium text-gray-900 dark:text-white items-end"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-clock-icon lucide-calendar-clock"><path d="M16 14v2.2l1.6 1"/><path d="M16 2v4"/><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M3 10h5"/><path d="M8 2v4"/><circle cx="16" cy="16" r="6"/></svg> <strong>Précommande</strong></span>
                 </label>
 
                 <label class="flex items-center p-3 bg-white dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                   <input v-model="product.is_flash_sale" type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-                  <span class="ml-3 text-sm font-medium text-gray-900 dark:text-white">⚡ Vente flash</span>
+                  <span class="flex ml-3 space-x-2 text-sm font-medium text-gray-900 dark:text-white items-end"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap-icon lucide-zap"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg> <strong>Vente flash</strong></span>
                 </label>
               </div>
             </div>
@@ -328,7 +438,7 @@
 
             <!-- Dates pour précommande -->
             <div v-if="product.is_preorder" class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-6">
-              <h3 class="text-lg font-medium text-yellow-900 dark:text-yellow-100 mb-4">📅 Configuration précommande</h3>
+              <h3 class="flex items-end space-x-2 text-lg font-medium text-yellow-900 dark:text-yellow-100 mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-clock-icon lucide-calendar-clock"><path d="M16 14v2.2l1.6 1"/><path d="M16 2v4"/><path d="M21 7.5V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3.5"/><path d="M3 10h5"/><path d="M8 2v4"/><circle cx="16" cy="16" r="6"/></svg> <span>Configuration précommande</span></h3>
               <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <div>
                   <label class="block mb-2 text-sm font-medium text-yellow-900 dark:text-yellow-100">
@@ -361,7 +471,7 @@
           <div v-show="activeTab === 'details'" class="space-y-8">
             <!-- Caractéristiques principales -->
             <div class="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-6">
-              <h3 class="text-lg font-medium text-purple-900 dark:text-purple-100 mb-4">🏷️ Caractéristiques principales</h3>
+              <h3 class="flex items-end space-x-2 text-lg font-medium text-purple-900 dark:text-purple-100 mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag-icon lucide-tag"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg><span> Caractéristiques principales</span></h3>
               <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <div>
                   <label class="block mb-2 text-sm font-medium text-purple-900 dark:text-purple-100">
@@ -390,18 +500,41 @@
                   <label class="block mb-2 text-sm font-medium text-purple-900 dark:text-purple-100">
                     Saison <span class="text-red-500">*</span>
                   </label>
-                  <select
-                    v-model="product.season"
-                    required
-                    class="w-full p-3 border border-purple-200 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors"
-                  >
-                    <option value="">Sélectionner une saison</option>
-                    <option value="printemps">🌸 Printemps</option>
-                    <option value="été">☀️ Été</option>
-                    <option value="automne">🍂 Automne</option>
-                    <option value="hiver">❄️ Hiver</option>
-                    <option value="toute_saison">🔄 Toute saison</option>
-                  </select>
+                  <Listbox v-model="product.season">
+                    <div class="relative">
+                      <ListboxButton
+                        class="w-full flex items-center justify-between border rounded-lg p-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                      >
+                        <span class="flex items-center gap-2">
+                          <component :is="selectedSeason.icon" class="w-5 h-5 text-blue-600" />
+                          {{ selectedSeason.label }}
+                        </span>
+                        <ChevronDownIcon class="w-4 h-4 text-gray-500" />
+                      </ListboxButton>
+                      <TransitionRoot
+                        enter="transition ease-out duration-100"
+                        enter-from="opacity-0 translate-y-1"
+                        enter-to="opacity-100 translate-y-0"
+                        leave="transition ease-in duration-75"
+                        leave-from="opacity-100 translate-y-0"
+                        leave-to="opacity-0 translate-y-1"
+                      >
+                        <ListboxOptions
+                          class="absolute z-10 mt-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg"
+                        >
+                          <ListboxOption
+                            v-for="option in seasons"
+                            :key="option.value"
+                            :value="option.value"
+                            class="cursor-pointer flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          >
+                            <component :is="option.icon" class="w-5 h-5 text-blue-600" />
+                            {{ option.label }}
+                          </ListboxOption>
+                        </ListboxOptions>
+                      </TransitionRoot>
+                    </div>
+                  </Listbox>
                 </div>
 
                 <div>
@@ -576,7 +709,7 @@
             </div>
 
             <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-6">
-              <h3 class="text-lg font-medium text-indigo-900 dark:text-indigo-100 mb-4">🎨 Variantes du produit</h3>
+              <h3 class="flex items-end space-x-2 text-lg font-medium text-indigo-900 dark:text-indigo-100 mb-4"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-palette-icon lucide-palette"><path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"/><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/></svg> <span>Variantes du produit</span></h3>
               <p class="text-sm text-indigo-700 dark:text-indigo-200 mb-6">
                 Définissez les différentes combinaisons de couleurs et tailles disponibles pour ce produit.
                 {{ product.images.length > 0 ? `Vous avez ${product.images.length} image(s) disponible(s) pour les associer aux variantes.` : '' }}
@@ -871,7 +1004,7 @@
                 :disabled="isSubmitting"
               >
                 <span v-if="isSubmitting" class="flex items-center">
-                  <SpinnerIcon class="w-4 h-4 mr-2 animate-spin" />
+                  <ArrowPathIcon class="w-4 h-4 mr-2 animate-spin" />
                   Enregistrement...
                 </span>
                 <span v-else class="flex items-center">
@@ -1066,14 +1199,238 @@ import {
   ExclamationTriangleIcon,
   CheckCircleIcon,
   ExclamationCircleIcon,
-  ArrowPathIcon as SpinnerIcon,
+  ArrowPathIcon,
   CloudArrowUpIcon,
   PlusIcon,
   TrashIcon,
   SwatchIcon,
-  SparklesIcon
+  SparklesIcon,
 } from '@heroicons/vue/24/outline'
 import api from '@/api/axiosConfig'
+import { Listbox, ListboxButton, ListboxOptions, ListboxOption, TransitionRoot } from '@headlessui/vue'
+import { 
+  Package, 
+  Clock, 
+  ChevronDown as ChevronDownIcon,
+  Tag,
+  Shirt,
+  Leaf,
+  Sun,
+  Snowflake,
+  Wind,
+  Factory,
+  User,
+  Users,
+  ShoppingBag,
+  Shirt as TShirt,
+  Footprints,
+  Headphones,
+  Watch,
+  Glasses,
+  Gem,
+  Home,
+  Heart,
+  Star,
+  Zap,
+  Camera,
+  Laptop,
+  Smartphone,
+  Tablet,
+  Music,
+  Book,
+  Gamepad2,
+  Dumbbell,
+  Car,
+  Pizza,
+  Coffee,
+  Wrench,
+  Flower2,
+  Baby,
+  Briefcase,
+  Plane,
+  Train,
+  Ship,
+  Bike,
+  Tent,
+  Palette,
+  Scissors,
+  Brush,
+  PenTool,
+  Ruler,
+  Hammer,
+  Key,
+  Lock,
+  Unlock,
+  Gift,
+  Crown,
+  Flag,
+  MapPin,
+  Navigation,
+  Compass,
+  Globe,
+  Mountain,
+  Umbrella,
+  Cloud,
+  CloudRain,
+  CloudSnow,
+  CloudDrizzle,
+  CloudLightning,
+  Sun as SunIcon,
+  Moon,
+  Sparkles as SparklesLucide
+} from 'lucide-vue-next'
+
+// Données possibles pour le select
+const productTypes = [
+  { value: 'new', label: 'Neuf', icon: Package },
+  { value: 'vintage', label: 'Vintage', icon: Clock },
+]
+
+const genders = [
+  { value: 'men', label: 'Homme', icon: User },
+  { value: 'women', label: 'Femme', icon: User },
+  { value: 'unisex', label: 'Unisexe', icon: Users },
+]
+
+const seasons = [
+  { value: 'ete', label: 'Été', icon: Sun },
+  { value: 'hiver', label: 'Hiver', icon: Snowflake },
+  { value: 'automne', label: 'Automne', icon: Leaf },
+  { value: 'printemps', label: 'Printemps', icon: Wind },
+]
+
+// Mapping des icônes Lucide par nom
+const iconMap = {
+  // Icônes de base
+  'shirt': Shirt,
+  't-shirt': TShirt,
+  'tag': Tag,
+  'shopping-bag': ShoppingBag,
+  'package': Package,
+  'leaf': Leaf,
+  'footprints': Footprints,
+  'headphones': Headphones,
+  'watch': Watch,
+  'glasses': Glasses,
+  'gem': Gem,
+  'home': Home,
+  'heart': Heart,
+  'star': Star,
+  'zap': Zap,
+  'camera': Camera,
+  'laptop': Laptop,
+  'smartphone': Smartphone,
+  'tablet': Tablet,
+  'music': Music,
+  'book': Book,
+  'gamepad': Gamepad2,
+  'dumbbell': Dumbbell,
+  'car': Car,
+  'pizza': Pizza,
+  'coffee': Coffee,
+  'wrench': Wrench,
+  'flower': Flower2,
+  'baby': Baby,
+  'briefcase': Briefcase,
+  'plane': Plane,
+  'train': Train,
+  'ship': Ship,
+  'bike': Bike,
+  'tent': Tent,
+  'palette': Palette,
+  'scissors': Scissors,
+  'brush': Brush,
+  'pen-tool': PenTool,
+  'ruler': Ruler,
+  'hammer': Hammer,
+  'key': Key,
+  'lock': Lock,
+  'unlock': Unlock,
+  'gift': Gift,
+  'crown': Crown,
+  'flag': Flag,
+  'map-pin': MapPin,
+  'navigation': Navigation,
+  'compass': Compass,
+  'globe': Globe,
+  'mountain': Mountain,
+  'umbrella': Umbrella,
+  'cloud': Cloud,
+  'cloud-rain': CloudRain,
+  'cloud-snow': CloudSnow,
+  'cloud-drizzle': CloudDrizzle,
+  'cloud-lightning': CloudLightning,
+  'sun': SunIcon,
+  'moon': Moon,
+  'sparkles': SparklesLucide,
+  'factory': Factory,
+  'user': User,
+  'users': Users,
+  'male': User,
+  'female': User,
+  // Icônes par défaut pour les saisons
+  'summer': Sun,
+  'winter': Snowflake,
+  'autumn': Leaf,
+  'spring': Wind
+}
+
+// Fonction pour obtenir l'icône Lucide par nom
+const getLucideIcon = (iconName) => {
+  return iconMap[iconName] || ShoppingBag // Icône par défaut
+}
+
+// Pour afficher l'icône et le texte du type sélectionné
+const selectedType = computed(() => {
+  return productTypes.find(t => t.value === product.value.type) || productTypes[0]
+})
+
+const selectedGender = computed(() => {
+  return genders.find(t => t.value === product.value.gender) || genders[2]
+})
+
+const selectedCategory = computed(() => {
+  // Cherche d'abord dans les données API, sinon utilise une icône par défaut
+  const apiCategory = apiCategories.value.find(cat => cat.id === product.value.category_id)
+  if (apiCategory) {
+    return { 
+      label: apiCategory.name, 
+      icon: getLucideIcon(apiCategory.icon),
+      logo: null
+    }
+  }
+  return { 
+    label: 'Sélectionner une catégorie', 
+    icon: ShoppingBag,
+    logo: null
+  }
+})
+
+const selectedBrand = computed(() => {
+  // Cherche d'abord dans les données API, sinon utilise une icône par défaut
+  const apiBrand = apiBrands.value.find(brand => brand.id === product.value.brand_id)
+  if (apiBrand) {
+    return { 
+      label: apiBrand.name, 
+      icon: Factory,
+      logo: apiBrand.logo_url
+    }
+  }
+  return { 
+    label: 'Sélectionner une marque', 
+    icon: Factory,
+    logo: null
+  }
+})
+
+const selectedSeason = computed(() => {
+  return seasons.find(t => t.value === product.value.season) || seasons[0]
+})
+
+// Fonction pour obtenir l'icône d'une catégorie
+const getCategoryIcon = (iconName) => {
+  return getLucideIcon(iconName)
+}
 
 const route = useRoute()
 const router = useRouter()
@@ -1153,8 +1510,8 @@ const product = ref({
 })
 
 const isSubmitting = ref(false)
-const brands = ref([])
-const categories = ref([])
+const apiBrands = ref([])
+const apiCategories = ref([])
 
 // Nouvelle variante
 const newVariant = ref({
@@ -1403,8 +1760,10 @@ const loadFormData = async () => {
       sizesStore.fetchSizes()
     ])
 
-    brands.value = brandsRes.data?.data || brandsRes.data || []
-    categories.value = categoriesRes.data?.data || categoriesRes.data || []
+
+
+    apiBrands.value = brandsRes.data?.data || brandsRes.data || []
+    apiCategories.value = categoriesRes.data?.data || categoriesRes.data || []
   } catch (error) {
     console.error('Erreur lors du chargement des données:', error)
   }
@@ -1432,13 +1791,13 @@ const loadProductToDuplicate = async (productId) => {
 
 // Gestion des modales
 const handleBrandCreated = (newBrand) => {
-  brands.value.push(newBrand)
+  apiBrands.value.push(newBrand)
   product.value.brand_id = newBrand.id
   showCreateBrandModal.value = false
 }
 
 const handleCategoryCreated = (newCategory) => {
-  categories.value.push(newCategory)
+  apiCategories.value.push(newCategory)
   product.value.category_id = newCategory.id
   showCreateCategoryModal.value = false
 }
@@ -1654,18 +2013,18 @@ const submitForm = async () => {
 
     if (error.response?.status === 422) {
       // Erreurs de validation Laravel
-      console.error('Erreurs de validation détaillées:', error.response.data.errors)
+      console.error('Erreurs de validation détaillées:', error.response.errors)
 
-      if (error.response.data.errors) {
+      if (error.response.errors) {
         // Aplatir les erreurs de validation pour l'affichage
-        validationErrors.value = Object.values(error.response.data.errors).flat()
-      } else if (error.response.data.message) {
-        validationErrors.value = [error.response.data.message]
+        validationErrors.value = Object.values(error.response.errors).flat()
+      } else if (error.response.message) {
+        validationErrors.value = [error.response.message]
       }
     } else if (error.response?.data?.message) {
-      validationErrors.value = [error.response.data.message]
+      validationErrors.value = [error.response.message]
     } else if (error.response?.data?.errors) {
-      validationErrors.value = Object.values(error.response.data.errors).flat()
+      validationErrors.value = Object.values(error.response.errors).flat()
     } else {
       validationErrors.value = ['Une erreur est survenue lors de la création du produit']
     }

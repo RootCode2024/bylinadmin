@@ -44,6 +44,12 @@ const router = createRouter({
       meta: { requiresAuth: true, title: 'Profil', roles: ['superadmin', 'admin', 'manager'] }
     },
     {
+      path: '/settings',
+      name: 'settings',
+      component: () => import('@/views/Admin/SettingsPage.vue'),
+      meta: { requiresAuth: true, title: 'Paramètres', roles: ['superadmin', 'admin'] }
+    },
+    {
       path: '/categories_and_brands',
       name: 'categories-and-brands',
       component: () => import('@/views/Admin/CategoryAndBrand/CategoriesAndBrandsPage.vue'),
@@ -78,6 +84,36 @@ const router = createRouter({
       name: 'products',
       component: () => import('@/views/Admin/Product/ProductsPage.vue'),
       meta: { requiresAuth: true, title: 'Produits', roles: ['superadmin', 'admin', 'manager'] }
+    },
+    {
+      path: '/collections',
+      name: 'collections',
+      component: () => import('@/views/Admin/Collection/CollectionsPage.vue'),
+      meta: { requiresAuth: true, title: 'Collections', roles: ['superadmin', 'admin'] }
+    },
+    {
+      path: '/collections/create',
+      name: 'create-collection',
+      component: () => import('@/views/Admin/Collection/CreateCollectionPage.vue'),
+      meta: { requiresAuth: true, title: 'Créer une Collection' }
+    },
+    {
+      path: '/collections/:id/edit',
+      name: 'edit-collection',
+      component: () => import('@/views/Admin/Collection/EditCollectionPage.vue'),
+      meta: { requiresAuth: true, title: 'Modifier la Collection' }
+    },
+    {
+      path: '/collections/:id/products',
+      name: 'collection-products',
+      component: () => import('@/views/Admin/Collection/CollectionProductsPage.vue'),
+      meta: { requiresAuth: true, title: 'Gérer les Produits' }
+    },
+    {
+      path: '/collections/:id/analytics',
+      name: 'collection-analytics',
+      component: () => import('@/views/Admin/Collection/CollectionAnalyticsPage.vue'),
+      meta: { requiresAuth: true, title: 'Analytiques de la Collection' }
     },
     {
       path: '/add-product',

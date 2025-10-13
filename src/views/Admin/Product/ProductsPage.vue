@@ -263,13 +263,14 @@
           </div>
 
           <div class="flex justify-between items-center mt-4">
-            <div class="text-sm text-gray-500 dark:text-gray-400">
+          <div class="text-sm text-gray-500 dark:text-gray-400">
               <div v-if="loadingStates.filtering" class="flex items-center">
                 <ArrowPathIcon class="w-4 h-4 animate-spin mr-2" />
                 Filtrage en cours...
               </div>
               <div v-else>
-                {{ filteredProducts.length }} produit(s) trouvé(s)
+                {{ pagination.total }} produit(s) trouvé(s)
+                <span v-if="filters.search || filters.category || filters.brand">(filtrés)</span>
               </div>
             </div>
             <button
@@ -290,7 +291,7 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
               <h3 class="text-lg font-medium text-gray-900 dark:text-white">
-                Produits ({{ loadingStates.products ? '...' : filteredProducts.length }})
+                Produits ({{ loadingStates.products ? '...' : pagination.total }})
               </h3>
               <div v-if="selectedProducts.length > 0" class="flex items-center space-x-2">
                 <span class="text-sm text-gray-500 dark:text-gray-400">
@@ -386,7 +387,7 @@
               </tr>
 
               <!-- Données réelles -->
-              <tr v-else v-for="product in paginatedProducts" :key="product.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <tr v-else v-for="product in products" :key="product.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
                 <td class="px-6 py-4">
                   <input
                     type="checkbox"
@@ -526,7 +527,7 @@
         </div>
 
         <!-- État vide -->
-        <div v-if="!loadingStates.products && filteredProducts.length === 0" class="text-center py-12">
+        <div v-if="!loadingStates.products && pagination.total === 0" class="text-center py-12">
           <CubeIcon class="mx-auto h-12 w-12 text-gray-400" />
           <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">Aucun produit trouvé</h3>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
@@ -545,62 +546,14 @@
       </div>
 
       <!-- Pagination avec loading -->
-      <div v-if="!loadingStates.products && filteredProducts.length > 0" class="flex items-center justify-between mt-6">
-        <div class="flex items-center">
-          <span class="text-sm text-gray-700 dark:text-gray-300">
-            Affichage de
-            <span class="font-medium">{{ pagination.from }}</span>
-            à
-            <span class="font-medium">{{ pagination.to }}</span>
-            sur
-            <span class="font-medium">{{ pagination.total }}</span>
-            résultats
-          </span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <select
-            v-model="pagination.perPage"
-            @change="handlePerPageChange"
-            :disabled="loadingStates.pagination"
-            class="text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white disabled:opacity-50"
-          >
-            <option value="10">10 par page</option>
-            <option value="25">25 par page</option>
-            <option value="50">50 par page</option>
-            <option value="100">100 par page</option>
-          </select>
-          <nav class="flex items-center space-x-1">
-            <button
-              @click="changePage(pagination.currentPage - 1)"
-              :disabled="pagination.currentPage === 1 || loadingStates.pagination"
-              class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-            >
-              Précédent
-            </button>
-            <button
-              v-for="page in visiblePages"
-              :key="page"
-              @click="changePage(page)"
-              :disabled="loadingStates.pagination"
-              :class="{
-                'bg-blue-50 border-blue-500 text-blue-600 dark:bg-blue-900 dark:border-blue-500 dark:text-blue-300': page === pagination.currentPage,
-                'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700': page !== pagination.currentPage
-              }"
-              class="px-3 py-2 text-sm font-medium border disabled:opacity-50"
-            >
-              <ArrowPathIcon v-if="loadingStates.pagination && page === pagination.currentPage" class="w-4 h-4 animate-spin" />
-              <span v-else>{{ page }}</span>
-            </button>
-            <button
-              @click="changePage(pagination.currentPage + 1)"
-              :disabled="pagination.currentPage === pagination.lastPage || loadingStates.pagination"
-              class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-            >
-              Suivant
-            </button>
-          </nav>
-        </div>
-      </div>
+      <Pagination
+        v-if="!loading && pagination.total > 0"
+        :current-page="pagination.currentPage"
+        :total-items="pagination.total"
+        :per-page="pagination.perPage"
+        @page-changed="changePage"
+        class="mt-6"
+      />
     </div>
 
     <!-- Modal de confirmation de suppression -->
@@ -743,7 +696,7 @@
               <!-- Actions rapides -->
               <div class="flex space-x-2">
                 <router-link
-                  :to="`/admin/products/${currentProduct.id}/edit`"
+                  :to="`/products/${currentProduct.id}/edit`"
                   class="flex-1 inline-flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   <PencilIcon class="w-4 h-4 mr-2" />
@@ -793,7 +746,7 @@
                     <div>
                       <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Vues</p>
                       <p class="text-lg font-semibold text-gray-900 dark:text-white">
-                        {{ currentProductMetrics?.view_count || currentProduct.view_count || 0 }}
+                        {{ currentProductMetrics?.viewCount || currentProduct.view_count || 0 }}
                       </p>
                     </div>
                   </div>
@@ -805,7 +758,7 @@
                     <div>
                       <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ventes</p>
                       <p class="text-lg font-semibold text-gray-900 dark:text-white">
-                        {{ currentProductMetrics?.purchase_count || 0 }}
+                        {{ currentProductMetrics?.purchaseCount || 0 }}
                       </p>
                     </div>
                   </div>
@@ -817,7 +770,7 @@
                     <div>
                       <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Notes</p>
                       <p class="text-lg font-semibold text-gray-900 dark:text-white">
-                        {{ currentProductMetrics?.average_rating || currentProduct.average_rating || '0.0' }}/5
+                        {{ currentProductMetrics?.averageRating || currentProduct.averageRating || '0.0' }}/5
                       </p>
                     </div>
                   </div>
@@ -829,7 +782,7 @@
                     <div>
                       <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Avis</p>
                       <p class="text-lg font-semibold text-gray-900 dark:text-white">
-                        {{ currentProductMetrics?.ratings_count || currentProduct.ratings_count || 0 }}
+                        {{ currentProductMetrics?.reviewCount || currentProduct.reviewCount || 0 }}
                       </p>
                     </div>
                   </div>
@@ -1089,7 +1042,7 @@
             Fermer
           </button>
           <router-link
-            :to="`/admin/products/${currentProduct?.id}/edit`"
+            :to="`/products/${currentProduct?.id}/edit`"
             class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
           >
             <PencilIcon class="w-4 h-4 mr-2 inline" />
@@ -1108,6 +1061,7 @@ import { debounce, throttle, defer } from 'lodash'
 import AdminLayout from "@/components/layout/AdminLayout.vue"
 import Modal from '@/components/ui/Modal.vue'
 import PageBreadcrumb from "@/components/common/PageBreadcrumb.vue"
+import Pagination from '@/components/ui/Pagination.vue'
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -1446,6 +1400,8 @@ const fetchProducts = async () => {
       }
     })
 
+    console.log('Paramètres de requête:', params)
+
     const response = await api.get('/products', { params })
 
     console.log('Réponse API Produits:', response)
@@ -1478,17 +1434,8 @@ const fetchProducts = async () => {
 }
 
 // Modifiez la fonction changePage :
-const changePage = async (page) => {
-  if (page === pagination.value.currentPage || loadingStates.value.pagination) return
-
-  loadingStates.value.pagination = true
-
-  try {
-    pagination.value.currentPage = page
-    await fetchProducts() // Recharger les données depuis l'API
-  } finally {
-    loadingStates.value.pagination = false
-  }
+const changePage = (page) => {
+  pagination.value.currentPage = page
 }
 
 // Modifiez la fonction handlePerPageChange :
@@ -1577,10 +1524,10 @@ const viewProduct = async (product) => {
 
     currentProduct.value = response.product || response.data || null
     currentProductMetrics.value = {
-      viewCount: response.metrics?.view_count || 0,
-      purchaseCount: response.metrics?.purchase_count || 0,
-      reviewCount: response.metrics?.review_count || 0,
-      averageRating: response.metrics?.average_rating || 0
+      viewCount: response.metrics?.view_count ?? 0,
+      purchaseCount: response.metrics?.purchase_count ?? 0,
+      reviewCount: response.metrics?.review_count ?? 0,
+      averageRating: response.metrics?.average_rating ?? 0
     }
   } catch (error) {
     console.error('Erreur lors du chargement des détails:', error)

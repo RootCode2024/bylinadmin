@@ -120,10 +120,10 @@
             <common-grid-shape />
             <div class="flex flex-col items-center max-w-xs">
               <router-link to="/" class="block mb-4">
-                <img width="231" height="48" src="/images/logo/auth-logo.svg" alt="Logo" />
+                <img width="231" height="48" src="/logo.png" alt="Logo" />
               </router-link>
               <p class="text-center font-light text-gray-400 dark:text-white/60">
-                Panel Administration de
+                Panel d'administration de
                 <span class="font-semibold">Bylin</span>.
               </p>
             </div>

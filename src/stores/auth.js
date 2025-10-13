@@ -95,6 +95,8 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('user', JSON.stringify(user.value));
       localStorage.setItem('roles', JSON.stringify(roles.value));
       localStorage.setItem('permissions', JSON.stringify(permissions.value));
+
+      return response
     } catch (err) {
       console.error("Erreur fetchUser :", err);
       // On ne déconnecte pas automatiquement (évite les bugs d'actualisation)

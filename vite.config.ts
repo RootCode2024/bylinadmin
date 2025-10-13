@@ -20,7 +20,8 @@ export default defineConfig({
           ui: ['element-plus', '@element-plus/icons-vue'],
           charts: ['echarts', 'vue-echarts']
         }
-      }
+      },
+      external: ['vue', 'vue-router', 'pinia', 'element-plus', '@element-plus/icons-vue', 'echarts', 'vue-echarts']
     }
   },
   resolve: {
