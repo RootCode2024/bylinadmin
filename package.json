@@ -15,7 +15,7 @@
   },
   "resolutions": {
     "element-plus": "^2.4.0",
-    "echarts": "^5.4.0"
+    "echarts": "^5.4.0",
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.15",
