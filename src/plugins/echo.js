@@ -14,7 +14,7 @@ const echo = new Echo({
   forceTLS: false,          // ⚠️ mettre false en local
   enabledTransports: ["ws", "wss"],
 
-  authEndpoint: "https://stagging.bylin-style.com/api/broadcasting/auth",
+  authEndpoint: "https://api.bylin-style.com/api/broadcasting/auth",
   auth: {
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
