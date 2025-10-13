@@ -15,7 +15,7 @@
       <div class="mb-8">
         <div class="flex flex-col justify-between mb-6 sm:flex-row sm:items-center">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Gérer les Produits</h1>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Gérer les produits</h1>
             <p class="mt-5 text-gray-600 dark:text-gray-400"> 
               <strong class="text-xl text-indigo-600 dark:text-indigo-400">{{ collection?.name }}</strong> - Ajoutez ou retirez des produits de cette collection
             </p>
