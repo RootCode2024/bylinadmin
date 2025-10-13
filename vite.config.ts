@@ -24,6 +24,7 @@ export default defineConfig({
       external: [],
     }
   },
+  base: '/',
   optimizeDeps: {
     include: [
       'echarts',
