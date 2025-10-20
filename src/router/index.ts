@@ -24,7 +24,7 @@ const router = createRouter({
       meta: { requiresAuth: false, title: 'Mot de passe oublié' }
     },
 
-    // 🔐 Routes protégées accessibles à tous les rôles autorisés
+    // 🔐 Routes protégées accessibles à tous les rôles autorisésd
     {
       path: '/',
       name: 'dashboard',
