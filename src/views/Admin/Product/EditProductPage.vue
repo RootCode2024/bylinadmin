@@ -1292,7 +1292,7 @@ const getImagePreview = (file) => {
   if (file instanceof File) {
     return URL.createObjectURL(file)
   }
-  return 'https://api.bylin-style.com' + file.url // Si c'est déjà une URL
+  return 'http://localhost:8000' + file.url // Si c'est déjà une URL
 }
 
 const isVariantExists = (colorId, sizeId) => {

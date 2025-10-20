@@ -1211,7 +1211,7 @@ const formatDate = (dateString) => {
 
 const getFullImageUrl = (path) => {
   if (!path) return 'https://placehold.co/80?text=collection+bylin'
-  return `https://api.bylin-style.com${path}`
+  return `http://localhost:8000${path}`
 }
 
 const getCollectionStatusClass = (collection) => {

@@ -691,7 +691,7 @@ const form = ref({
 const getFullImageUrl = (path) => {
   if (!path) return ''
   if (path.startsWith('http')) return path
-  return `https://api.bylin-style.com${path}`
+  return `http://localhost:8000${path}`
 }
 
 // Gestion des images

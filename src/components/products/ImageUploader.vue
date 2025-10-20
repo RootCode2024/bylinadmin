@@ -102,10 +102,10 @@ const dragOver = ref(false)
 const errorMessage = ref('')
 
 const getImageUrl = (image) => {
-  return image instanceof File ? URL.createObjectURL(image) : 'https://api.bylin-style.com' + image.url
+  return image instanceof File ? URL.createObjectURL(image) : 'http://localhost:8000' + image.url
 }
 
-// 'https://api.bylin-style.com' +
+// 'http://localhost:8000' +
 
 const openFilePicker = () => {
   fileInput.value.click()

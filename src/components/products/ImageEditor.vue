@@ -254,7 +254,7 @@ const getImageUrl = (image) => {
   if (imageUrl.startsWith('http')) {
     return imageUrl
   } else if (imageUrl.startsWith('/storage/')) {
-    return "https://api.bylin-style.com" + imageUrl // Ajustez selon votre environnement
+    return "http://localhost:8000" + imageUrl // Ajustez selon votre environnement
   } else {
     return imageUrl
   }
