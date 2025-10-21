@@ -291,7 +291,7 @@
                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
                       </label>
                     </div>
-                    
+
                     <div v-if="settings.shipping.standardEnabled" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                       <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">Coût (XOF)</label>
@@ -335,7 +335,7 @@
                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
                       </label>
                     </div>
-                    
+
                     <div v-if="settings.shipping.expressEnabled" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                       <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">Coût (XOF)</label>
@@ -379,7 +379,7 @@
                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
                       </label>
                     </div>
-                    
+
                     <div v-if="settings.shipping.freeEnabled" class="mt-4">
                       <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">Seuil minimum pour livraison gratuite (XOF)</label>
@@ -409,7 +409,7 @@
                   <!-- Notifications email -->
                   <div class="space-y-4">
                     <h3 class="text-lg font-medium text-gray-900">Notifications par email</h3>
-                    
+
                     <div class="flex items-center justify-between p-4 border border-gray-200 rounded-2xl">
                       <div>
                         <h4 class="font-medium text-gray-900">Nouvelles commandes</h4>
@@ -459,7 +459,7 @@
                   <!-- Notifications push -->
                   <div class="space-y-4">
                     <h3 class="text-lg font-medium text-gray-900">Notifications push</h3>
-                    
+
                     <div class="flex items-center justify-between p-4 border border-gray-200 rounded-2xl">
                       <div>
                         <h4 class="font-medium text-gray-900">Alertes importantes</h4>
@@ -519,7 +519,7 @@
                         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
                       </label>
                     </div>
-                    
+
                     <div v-if="settings.advanced.maintenanceMode" class="mt-4 space-y-4">
                       <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">Message de maintenance</label>
@@ -684,7 +684,7 @@ const settings = reactive({
 // Charger les paramètres
 const loadSettings = async () => {
   try {
-    const response = await api.get('/admin/settings')
+    const response = await api.get('/api/admin/admin/settings')
     if (response.data.status === 'success') {
       Object.assign(settings, response.data.settings)
     }
@@ -698,7 +698,7 @@ const loadSettings = async () => {
 const saveGeneralSettings = async () => {
   saving.value = true
   try {
-    const response = await api.put('/admin/settings/general', settings.general)
+    const response = await api.put('/api/admin/settings/general', settings.general)
     if (response.data.status === 'success') {
       showNotification('Paramètres généraux sauvegardés', 'success')
     }
@@ -713,7 +713,7 @@ const saveGeneralSettings = async () => {
 // Sauvegarder les paramètres de paiement
 const savePaymentSettings = async () => {
   try {
-    const response = await api.put('/admin/settings/payments', settings.payments)
+    const response = await api.put('/api/admin/settings/payments', settings.payments)
     if (response.data.status === 'success') {
       showNotification('Paramètres de paiement sauvegardés', 'success')
     }
@@ -726,7 +726,7 @@ const savePaymentSettings = async () => {
 // Sauvegarder les paramètres de livraison
 const saveShippingSettings = async () => {
   try {
-    const response = await api.put('/admin/settings/shipping', settings.shipping)
+    const response = await api.put('/api/admin/settings/shipping', settings.shipping)
     if (response.data.status === 'success') {
       showNotification('Paramètres de livraison sauvegardés', 'success')
     }
@@ -739,7 +739,7 @@ const saveShippingSettings = async () => {
 // Sauvegarder les paramètres de notification
 const saveNotificationSettings = async () => {
   try {
-    const response = await api.put('/admin/settings/notifications', settings.notifications)
+    const response = await api.put('/api/admin/settings/notifications', settings.notifications)
     if (response.data.status === 'success') {
       showNotification('Paramètres de notification sauvegardés', 'success')
     }
@@ -752,7 +752,7 @@ const saveNotificationSettings = async () => {
 // Sauvegarder les paramètres avancés
 const saveAdvancedSettings = async () => {
   try {
-    const response = await api.put('/admin/settings/advanced', settings.advanced)
+    const response = await api.put('/api/admin/settings/advanced', settings.advanced)
     if (response.data.status === 'success') {
       showNotification('Paramètres avancés sauvegardés', 'success')
     }
@@ -768,7 +768,7 @@ const watchSettings = () => {
   Object.keys(settings.general).forEach(key => {
     // Implémentez watch si nécessaire
   })
-  
+
   // Paiements
   Object.keys(settings.payments).forEach(key => {
     // Implémentez watch si nécessaire

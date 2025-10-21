@@ -42,7 +42,7 @@ export const useCustomersStore = defineStore('customers', () => {
         sort: filters.sort || 'newest'
       }
 
-      const response = await api.get('/customers', {
+      const response = await api.get('/api/admin/customers', {
         params,
       })
       console.log('la reponse : ', response)
@@ -64,9 +64,9 @@ export const useCustomersStore = defineStore('customers', () => {
   const getCustomer = async (id) => {
     isLoading.value = true
     error.value = null
-    
+
     try {
-      const response = await api.get(`/customers/${id}`)
+      const response = await api.get(`/api/admin/customers/${id}`)
       console.log(response)
       currentCustomer.value = response
       return response
@@ -83,7 +83,7 @@ export const useCustomersStore = defineStore('customers', () => {
     error.value = null
 
     try {
-      const response = await api.post('/customers', customerData)
+      const response = await api.post('/api/admin/customers', customerData)
       customers.value.unshift(response.data)
       totalItems.value++
       return response.data
@@ -100,7 +100,7 @@ export const useCustomersStore = defineStore('customers', () => {
     error.value = null
 
     try {
-      const response = await api.put(`/customers/${id}`, customerData)
+      const response = await api.put(`/api/admin/customers/${id}`, customerData)
 
       // Mettre à jour la liste
       const index = customers.value.findIndex(c => c.id === id)
@@ -149,7 +149,7 @@ export const useCustomersStore = defineStore('customers', () => {
     error.value = null
 
     try {
-      await api.delete(`/customers/${id}`)
+      await api.delete(`/api/admin/customers/${id}`)
 
       // Retirer de la liste
       customers.value = customers.value.filter(c => c.id !== id)
@@ -166,7 +166,7 @@ export const useCustomersStore = defineStore('customers', () => {
 
   const restoreCustomer = async (id) => {
     try {
-      const response = await api.post(`/customers/${id}/restore`)
+      const response = await api.post(`/api/admin/customers/${id}/restore`)
 
       // Mettre à jour la liste
       const index = customers.value.findIndex(c => c.id === id)
@@ -183,7 +183,7 @@ export const useCustomersStore = defineStore('customers', () => {
 
   const resetPassword = async (id) => {
     try {
-      const response = await api.post(`/customers/${id}/reset-password`)
+      const response = await api.post(`/api/admin/customers/${id}/reset-password`)
       return response.data
     } catch (err) {
       error.value = err.response?.data?.message || 'Erreur lors de la réinitialisation du mot de passe'
@@ -198,7 +198,7 @@ export const useCustomersStore = defineStore('customers', () => {
         page: options.page || 1
       }
 
-      const response = await api.get(`/customers/${id}/orders`, { params })
+      const response = await api.get(`/api/admin/customers/${id}/orders`, { params })
       return response.data.data || response.data
     } catch (err) {
       error.value = err.response?.data?.message || 'Erreur lors du chargement des commandes'
@@ -208,7 +208,7 @@ export const useCustomersStore = defineStore('customers', () => {
 
   const getCustomerAddresses = async (id) => {
     try {
-      const response = await api.get(`/customers/${id}/addresses`)
+      const response = await api.get(`/api/admin/customers/${id}/addresses`)
       console.log(response)
       return response
     } catch (err) {
@@ -224,7 +224,7 @@ export const useCustomersStore = defineStore('customers', () => {
         page: options.page || 1
       }
 
-      const response = await api.get(`/customers/${id}/activity`, { params })
+      const response = await api.get(`/api/admin/customers/${id}/activity`, { params })
       console.log(response)
       return response.data.data || response.data
     } catch (err) {
@@ -242,7 +242,7 @@ export const useCustomersStore = defineStore('customers', () => {
         format: filters.format || 'xlsx'
       }
 
-      const response = await api.get('/customers/export', {
+      const response = await api.get('/api/admin/customers/export', {
         params,
         responseType: 'blob'
       })
@@ -271,7 +271,7 @@ export const useCustomersStore = defineStore('customers', () => {
       const formData = new FormData()
       formData.append('file', file)
 
-      const response = await api.post('/customers/import', formData, {
+      const response = await api.post('/api/admin/customers/import', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -291,7 +291,7 @@ export const useCustomersStore = defineStore('customers', () => {
 
   const sendMessage = async (customerId, messageData) => {
     try {
-      const response = await api.post(`/customers/${customerId}/messages`, messageData)
+      const response = await api.post(`/api/admin/customers/${customerId}/messages`, messageData)
       return response.data
     } catch (err) {
       error.value = err.response?.data?.message || 'Erreur lors de l\'envoi du message'
@@ -304,7 +304,7 @@ export const useCustomersStore = defineStore('customers', () => {
     error.value = null
 
     try {
-      const response = await api.post('/customers/bulk-action', {
+      const response = await api.post('/api/admin/customers/bulk-action', {
         action,
         customer_ids: customerIds
       })

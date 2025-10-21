@@ -32,7 +32,7 @@ export const useOrdersStore = defineStore('orders', {
         this.loading = true
         this.error = null
 
-        const response = await api.get(`/customers/${customerId}/orders`, {
+        const response = await api.get(`/api/admin/customers/${customerId}/orders`, {
           params: {
             page: params.page || 1,
             per_page: params.per_page || 15,
@@ -65,7 +65,7 @@ export const useOrdersStore = defineStore('orders', {
         this.loading = true
         this.error = null
 
-        const response = await api.get(`/orders`, {
+        const response = await api.get(`/api/admin/orders`, {
           params: {
             page: params.page || 1,
             per_page: params.per_page || 15,
@@ -98,7 +98,7 @@ export const useOrdersStore = defineStore('orders', {
         this.loading = true
         this.error = null
 
-        const response = await api.get(`/customers/orders/${orderId}`)
+        const response = await api.get(`/api/admin/customers/orders/${orderId}`)
         console.log(response)
         this.currentOrder = response
 
@@ -149,7 +149,7 @@ export const useOrdersStore = defineStore('orders', {
      */
     async cancelOrder(orderId, data) {
       try {
-        const response = await api.post(`/orders/${orderId}/cancel`, data)
+        const response = await api.post(`/api/admin/orders/${orderId}/cancel`, data)
 
         // Mettre à jour dans le state
         if (this.currentOrder && this.currentOrder.id === orderId) {
@@ -174,7 +174,7 @@ export const useOrdersStore = defineStore('orders', {
      */
     async refundOrder(orderId, data) {
       try {
-        const response = await api.post(`/orders/${orderId}/refund`, data)
+        const response = await api.post(`/api/admin/orders/${orderId}/refund`, data)
 
         // Mettre à jour dans le state
         if (this.currentOrder && this.currentOrder.id === orderId) {
@@ -200,7 +200,7 @@ export const useOrdersStore = defineStore('orders', {
      */
     async duplicateOrder(orderId) {
       try {
-        const response = await api.post(`/orders/${orderId}/duplicate`)
+        const response = await api.post(`/api/admin/orders/${orderId}/duplicate`)
 
         // Ajouter la nouvelle commande au début de la liste
         if (response.data) {
@@ -219,7 +219,7 @@ export const useOrdersStore = defineStore('orders', {
      */
     async downloadInvoice(orderId, format = 'pdf') {
       try {
-        const response = await api.get(`/orders/${orderId}/invoice`, {
+        const response = await api.get(`/api/admin/orders/${orderId}/invoice`, {
           params: { format },
           responseType: 'blob'
         })
@@ -246,7 +246,7 @@ export const useOrdersStore = defineStore('orders', {
      */
     async exportCustomerOrders(customerId, params = {}) {
       try {
-        const response = await api.get(`/customers/${customerId}/orders/export`, {
+        const response = await api.get(`/api/admin/customers/${customerId}/orders/export`, {
           params: {
             search: params.search || '',
             status: params.status || '',
@@ -278,7 +278,7 @@ export const useOrdersStore = defineStore('orders', {
      */
     async updateOrder(orderId, data) {
       try {
-        const response = await api.put(`/orders/${orderId}`, data)
+        const response = await api.put(`/api/admin/orders/${orderId}`, data)
 
         // Mettre à jour dans le state
         if (this.currentOrder && this.currentOrder.id === orderId) {
@@ -302,7 +302,7 @@ export const useOrdersStore = defineStore('orders', {
      */
     async addOrderNote(orderId, note) {
       try {
-        const response = await api.post(`/orders/${orderId}/notes`, {
+        const response = await api.post(`/api/admin/orders/${orderId}/notes`, {
           note,
           type: 'internal' // ou 'customer'
         })
@@ -327,7 +327,7 @@ export const useOrdersStore = defineStore('orders', {
      */
     async updateShippingAddress(orderId, address) {
       try {
-        const response = await api.put(`/orders/${orderId}/shipping-address`, address)
+        const response = await api.put(`/api/admin/orders/${orderId}/shipping-address`, address)
 
         // Mettre à jour dans le state
         if (this.currentOrder && this.currentOrder.id === orderId) {
@@ -346,7 +346,7 @@ export const useOrdersStore = defineStore('orders', {
      */
     async updateTrackingNumber(orderId, trackingNumber, carrier = null) {
       try {
-        const response = await api.put(`/orders/${orderId}/tracking`, {
+        const response = await api.put(`/api/admin/orders/${orderId}/tracking`, {
           tracking_number: trackingNumber,
           carrier
         })
@@ -376,7 +376,7 @@ export const useOrdersStore = defineStore('orders', {
      */
     async sendOrderNotification(orderId, type, customMessage = null) {
       try {
-        const response = await api.post(`/orders/${orderId}/notify`, {
+        const response = await api.post(`/api/admin/orders/${orderId}/notify`, {
           type, // 'status_update', 'shipped', 'delivered', 'custom'
           message: customMessage
         })
@@ -393,7 +393,7 @@ export const useOrdersStore = defineStore('orders', {
      */
     async getOrderHistory(orderId) {
       try {
-        const response = await api.get(`/orders/${orderId}/history`)
+        const response = await api.get(`/api/admin/orders/${orderId}/history`)
         return response.data
       } catch (error) {
         this.error = error.response?.data?.message || 'Erreur lors du chargement de l\'historique'
@@ -406,7 +406,7 @@ export const useOrdersStore = defineStore('orders', {
      */
     async deleteOrder(orderId) {
       try {
-        const response = await api.delete(`/orders/${orderId}`)
+        const response = await api.delete(`/api/admin/orders/${orderId}`)
 
         // Retirer de la liste locale
         this.orders = this.orders.filter(order => order.id !== orderId)

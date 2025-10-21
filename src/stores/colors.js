@@ -101,7 +101,7 @@ export const useColorsStore = defineStore('colors', () => {
     clearError()
 
     try {
-      const response = await api.get('/colors')
+      const response = await api.get('/api/admin/colors')
 
       // Gérer différents formats de réponse
       let colorsData = []
@@ -149,7 +149,7 @@ export const useColorsStore = defineStore('colors', () => {
         hex_code: colorData.hex_code.toUpperCase()
       }
 
-      const response = await api.post('/colors', cleanedData)
+      const response = await api.post('/api/admin/colors', cleanedData)
       const newColor = response.data?.data || response.data
 
       // Ajouter à la liste locale
@@ -183,7 +183,7 @@ export const useColorsStore = defineStore('colors', () => {
         hex_code: colorData.hex_code.toUpperCase()
       }
 
-      const response = await api.put(`/colors/${id}`, cleanedData)
+      const response = await api.put(`/api/admin/colors/${id}`, cleanedData)
       const updatedColor = response.data?.data || response.data
 
       // Mettre à jour dans la liste locale
@@ -207,7 +207,7 @@ export const useColorsStore = defineStore('colors', () => {
     clearError()
 
     try {
-      await api.delete(`/colors/${id}`)
+      await api.delete(`/api/admin/colors/${id}`)
 
       // Supprimer de la liste locale
       const index = colors.value.findIndex(color => color.id === id)

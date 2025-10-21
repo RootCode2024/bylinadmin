@@ -1402,7 +1402,7 @@ const fetchProducts = async () => {
 
     console.log('Paramètres de requête:', params)
 
-    const response = await api.get('/products', { params })
+    const response = await api.get('/api/admin/products', { params })
 
     console.log('Réponse API Produits:', response)
 
@@ -1490,7 +1490,7 @@ const throttledFilter = throttle(async () => {
 
 const fetchCategories = async () => {
   try {
-    const response = await api.get('/categories')
+    const response = await api.get('/api/admin/categories')
     categories.value = response.data?.data || response.data || []
   } catch (error) {
     console.error('Erreur lors du chargement des catégories:', error)
@@ -1501,7 +1501,7 @@ const fetchCategories = async () => {
 
 const fetchBrands = async () => {
   try {
-    const response = await api.get('/brands')
+    const response = await api.get('/api/admin/brands')
     brands.value = response.data?.data || response.data || []
   } catch (error) {
     console.error('Erreur lors du chargement des marques:', error)
@@ -1517,7 +1517,7 @@ const viewProduct = async (product) => {
     currentProductId.value = product.id
     currentProduct.value = null
 
-    const response = await api.get(`/products/${product.id}`)
+    const response = await api.get(`/api/admin/products/${product.id}`)
     console.log(response)
     // Délai minimum pour UX
     await delay(300)
@@ -1578,7 +1578,7 @@ const deleteProduct = async () => {
     loadingStates.value.delete = true
 
     const deletePromises = selectedProducts.value.map(id =>
-      api.delete(`/products/${id}`)
+      api.delete(`/api/admin/products/${id}`)
     )
 
     await Promise.all(deletePromises)

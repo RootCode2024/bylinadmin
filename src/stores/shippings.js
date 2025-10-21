@@ -86,7 +86,7 @@ export const useShippingStore = defineStore('shipping', () => {
         ...options
       }
 
-      const response = await api.get('/shipments', { params })
+      const response = await api.get('/api/admin/shipments', { params })
 
       shipments.value = response.data.data
       pagination.value = {
@@ -110,7 +110,7 @@ export const useShippingStore = defineStore('shipping', () => {
     error.value = null
 
     try {
-      const response = await api.get(`/shipments/${identifier}`)
+      const response = await api.get(`/api/admin/shipments/${identifier}`)
       currentShipment.value = response.data
       return response.data
     } catch (err) {
@@ -126,7 +126,7 @@ export const useShippingStore = defineStore('shipping', () => {
     error.value = null
 
     try {
-      const response = await api.get(`/shipments/${trackingNumber}/tracking`)
+      const response = await api.get(`/api/admin/shipments/${trackingNumber}/tracking`)
       trackingData.value = response.data
       return response.data
     } catch (err) {
@@ -142,7 +142,7 @@ export const useShippingStore = defineStore('shipping', () => {
     error.value = null
 
     try {
-      const response = await api.get('/deliveries/zone/available')
+      const response = await api.get('/api/admin/deliveries/zone/available')
       availableDeliveries.value = response.data
       return response.data
     } catch (err) {
@@ -158,7 +158,7 @@ export const useShippingStore = defineStore('shipping', () => {
     error.value = null
 
     try {
-      const response = await api.get('/shipments/stats')
+      const response = await api.get('/api/admin/shipments/stats')
       stats.value = response.data
       return response.data
     } catch (err) {
@@ -174,7 +174,7 @@ export const useShippingStore = defineStore('shipping', () => {
     error.value = null
 
     try {
-      const response = await api.post(`/shipments/${shipmentId}/assign`, {
+      const response = await api.post(`/api/admin/shipments/${shipmentId}/assign`, {
         delivery_id: deliveryId,
         estimated_delivery_at: estimatedDeliveryAt
       })
@@ -270,7 +270,7 @@ export const useShippingStore = defineStore('shipping', () => {
     error.value = null
 
     try {
-      const response = await api.get('/shipments/export', {
+      const response = await api.get('/api/admin/shipments/export', {
         params: {
           format,
           ...filters.value

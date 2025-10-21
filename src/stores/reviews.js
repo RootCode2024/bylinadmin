@@ -49,7 +49,7 @@ export const useReviewsStore = defineStore('reviews', () => {
         sort: filters.sort || 'newest'
       }
 
-      const response = await api.get('/reviews', {
+      const response = await api.get('/api/admin/reviews', {
         params,
       })
 
@@ -71,9 +71,9 @@ export const useReviewsStore = defineStore('reviews', () => {
   const getReview = async (id) => {
     isLoading.value = true
     error.value = null
-    
+
     try {
-      const response = await api.get(`/reviews/${id}`)
+      const response = await api.get(`/api/admin/reviews/${id}`)
       currentReview.value = response.data
       return response.data
     } catch (err) {
@@ -89,13 +89,13 @@ export const useReviewsStore = defineStore('reviews', () => {
     error.value = null
 
     try {
-      const response = await api.post('/reviews', reviewData)
+      const response = await api.post('/api/admin/reviews', reviewData)
       reviews.value.unshift(response.data)
       totalItems.value++
-      
+
       // Mettre à jour les statistiques
       updateLocalStats(response.data, 'create')
-      
+
       return response.data
     } catch (err) {
       error.value = err.response?.data?.message || 'Erreur lors de la création de l\'avis'
@@ -110,7 +110,7 @@ export const useReviewsStore = defineStore('reviews', () => {
     error.value = null
 
     try {
-      const response = await api.put(`/reviews/${id}/update`, reviewData)
+      const response = await api.put(`/api/admin/reviews/${id}/update`, reviewData)
       const updatedReview = response.data  // ✅ Corrigé ici
 
       console.log('La reponse que on recoit ici : ', response)
@@ -148,7 +148,7 @@ export const useReviewsStore = defineStore('reviews', () => {
       if (index !== -1) {
         const oldStatus = reviews.value[index].status
         reviews.value[index].status = status
-        
+
         // Mettre à jour les statistiques de statut
         if (stats.value[oldStatus] > 0) stats.value[oldStatus]--
         stats.value[status] = (stats.value[status] || 0) + 1
@@ -171,7 +171,7 @@ export const useReviewsStore = defineStore('reviews', () => {
     error.value = null
 
     try {
-      await api.delete(`/reviews/${id}`)
+      await api.delete(`/api/admin/reviews/${id}`)
 
       // Retirer de la liste
       const index = reviews.value.findIndex(r => r.id === id)
@@ -179,7 +179,7 @@ export const useReviewsStore = defineStore('reviews', () => {
         const deletedReview = reviews.value[index]
         reviews.value.splice(index, 1)
         totalItems.value--
-        
+
         // Mettre à jour les statistiques
         updateLocalStats(deletedReview, 'delete')
       }
@@ -203,7 +203,7 @@ export const useReviewsStore = defineStore('reviews', () => {
 
   const moderateReview = async (id, action, reason = '') => {
     try {
-      const response = await api.post(`/reviews/${id}/moderate`, {
+      const response = await api.post(`/api/admin/reviews/${id}/moderate`, {
         action,
         reason
       })
@@ -229,7 +229,7 @@ export const useReviewsStore = defineStore('reviews', () => {
         status: options.status || 'approved'
       }
 
-      const response = await api.get(`/products/${productId}/reviews`, { params })
+      const response = await api.get(`/api/admin/products/${productId}/reviews`, { params })
       return response.data
     } catch (err) {
       error.value = err.response?.data?.message || 'Erreur lors du chargement des avis du produit'
@@ -244,7 +244,7 @@ export const useReviewsStore = defineStore('reviews', () => {
         page: options.page || 1
       }
 
-      const response = await api.get(`/customers/${customerId}/reviews`, { params })
+      const response = await api.get(`/api/admin/customers/${customerId}/reviews`, { params })
       return response.data
     } catch (err) {
       error.value = err.response?.data?.message || 'Erreur lors du chargement des avis du client'
@@ -262,7 +262,7 @@ export const useReviewsStore = defineStore('reviews', () => {
         format: filters.format || 'xlsx'
       }
 
-      const response = await api.get('/reviews/export', {
+      const response = await api.get('/api/admin/reviews/export', {
         params,
         responseType: 'blob'
       })
@@ -288,7 +288,7 @@ export const useReviewsStore = defineStore('reviews', () => {
     error.value = null
 
     try {
-      const response = await api.post('/reviews/bulk-action', {
+      const response = await api.post('/api/admin/reviews/bulk-action', {
         action,
         review_ids: reviewIds,
         ...data
@@ -314,7 +314,7 @@ export const useReviewsStore = defineStore('reviews', () => {
         customer_id: filters.customer_id || ''
       }
 
-      const response = await api.get('/reviews/stats', { params })
+      const response = await api.get('/api/admin/reviews/stats', { params })
       return response.data
     } catch (err) {
       error.value = err.response?.data?.message || 'Erreur lors du chargement des statistiques'
@@ -324,7 +324,7 @@ export const useReviewsStore = defineStore('reviews', () => {
 
   const reportReview = async (id, reason) => {
     try {
-      const response = await api.post(`/reviews/${id}/report`, { reason })
+      const response = await api.post(`/api/admin/reviews/${id}/report`, { reason })
       return response.data
     } catch (err) {
       error.value = err.response?.data?.message || 'Erreur lors du signalement'

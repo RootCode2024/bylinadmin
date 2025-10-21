@@ -154,7 +154,7 @@
                 <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                   Genre <span class="text-red-500">*</span>
                 </label>
-                
+
                 <Listbox v-model="product.gender">
                   <div class="relative">
                     <ListboxButton
@@ -204,9 +204,9 @@
                         class="w-full flex items-center justify-between border rounded-lg p-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                       >
                         <span class="flex items-center gap-2">
-                          <img 
-                            v-if="selectedBrand.logo" 
-                            :src="selectedBrand.logo" 
+                          <img
+                            v-if="selectedBrand.logo"
+                            :src="selectedBrand.logo"
                             :alt="selectedBrand.label"
                             class="w-12 h-12 object-contain rounded"
                           />
@@ -232,9 +232,9 @@
                             :value="option.id"
                             class="cursor-pointer flex items-center gap-2 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                           >
-                            <img 
-                              v-if="option.logo_url" 
-                              :src="option.logo_url" 
+                            <img
+                              v-if="option.logo_url"
+                              :src="option.logo_url"
                               :alt="option.name"
                               class="w-12 h-12 object-contain rounded"
                             />
@@ -1208,9 +1208,9 @@ import {
 } from '@heroicons/vue/24/outline'
 import api from '@/api/axiosConfig'
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption, TransitionRoot } from '@headlessui/vue'
-import { 
-  Package, 
-  Clock, 
+import {
+  Package,
+  Clock,
   ChevronDown as ChevronDownIcon,
   Tag,
   Shirt,
@@ -1393,14 +1393,14 @@ const selectedCategory = computed(() => {
   // Cherche d'abord dans les données API, sinon utilise une icône par défaut
   const apiCategory = apiCategories.value.find(cat => cat.id === product.value.category_id)
   if (apiCategory) {
-    return { 
-      label: apiCategory.name, 
+    return {
+      label: apiCategory.name,
       icon: getLucideIcon(apiCategory.icon),
       logo: null
     }
   }
-  return { 
-    label: 'Sélectionner une catégorie', 
+  return {
+    label: 'Sélectionner une catégorie',
     icon: ShoppingBag,
     logo: null
   }
@@ -1410,14 +1410,14 @@ const selectedBrand = computed(() => {
   // Cherche d'abord dans les données API, sinon utilise une icône par défaut
   const apiBrand = apiBrands.value.find(brand => brand.id === product.value.brand_id)
   if (apiBrand) {
-    return { 
-      label: apiBrand.name, 
+    return {
+      label: apiBrand.name,
       icon: Factory,
       logo: apiBrand.logo_url
     }
   }
-  return { 
-    label: 'Sélectionner une marque', 
+  return {
+    label: 'Sélectionner une marque',
     icon: Factory,
     logo: null
   }
@@ -1754,8 +1754,8 @@ const saveDraft = async () => {
 const loadFormData = async () => {
   try {
     const [brandsRes, categoriesRes] = await Promise.all([
-      api.get('/brands'),
-      api.get('/categories'),
+      api.get('/api/admin/brands'),
+      api.get('/api/admin/categories'),
       colorsStore.fetchColors(),
       sizesStore.fetchSizes()
     ])
@@ -1772,7 +1772,7 @@ const loadFormData = async () => {
 // Charger un produit à dupliquer
 const loadProductToDuplicate = async (productId) => {
   try {
-    const response = await api.get(`/products/${productId}`)
+    const response = await api.get(`/api/admin/products/${productId}`)
     const productData = response.data
 
     product.value = {
@@ -1995,7 +1995,7 @@ const submitForm = async () => {
       }
     })
 
-    const response = await api.post('/products', formData, {
+    const response = await api.post('/api/admin/products', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

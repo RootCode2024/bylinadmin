@@ -75,7 +75,7 @@ export const useConversationsStore = defineStore('conversations', {
     async loadConversations() {
       this.loading = true
       try {
-        const response = await api.get('/conversations', {
+        const response = await api.get('/api/admin/conversations', {
           params: this.filters
         })
 
@@ -117,7 +117,7 @@ export const useConversationsStore = defineStore('conversations', {
     async findOrCreateConversation(clientId) {
       this.loading = true
       try {
-        const response = await api.post('/conversations/find-or-create', {
+        const response = await api.post('/api/admin/conversations/find-or-create', {
           client_id: clientId
         })
 
@@ -150,7 +150,7 @@ export const useConversationsStore = defineStore('conversations', {
     // Sélectionner une conversation et charger ses messages
     async selectConversation(conversationId) {
       try {
-        const response = await api.get(`/conversations/${conversationId}`)
+        const response = await api.get(`/api/admin/conversations/${conversationId}`)
 
         if (response.success) {
           this.selectedConversation = response.data
@@ -187,7 +187,7 @@ export const useConversationsStore = defineStore('conversations', {
           formData.append(`attachments[${index}]`, file)
         })
 
-        const response = await api.post(`/conversations/${conversationId}/messages`, formData, {
+        const response = await api.post(`/api/admin/conversations/${conversationId}/messages`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -329,7 +329,7 @@ export const useConversationsStore = defineStore('conversations', {
       }
 
       try {
-        const response = await api.get('/conversations/search', {
+        const response = await api.get('/api/admin/conversations/search', {
           params: { query }
         })
 
@@ -346,7 +346,7 @@ export const useConversationsStore = defineStore('conversations', {
     // Obtenir le nombre de messages non lus
     async getUnreadCount() {
       try {
-        const response = await api.get('/conversations/unread-count')
+        const response = await api.get('/api/admin/conversations/unread-count')
 
         if (response.success) {
           this.unreadCount = response.data.unread_count
@@ -360,7 +360,7 @@ export const useConversationsStore = defineStore('conversations', {
     // Supprimer une conversation
     async deleteConversation(conversationId) {
       try {
-        const response = await api.delete(`/conversations/${conversationId}`)
+        const response = await api.delete(`/api/admin/conversations/${conversationId}`)
 
         if (response.success) {
           // Retirer de la liste

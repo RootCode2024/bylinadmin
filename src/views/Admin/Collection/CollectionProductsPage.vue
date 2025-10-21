@@ -16,7 +16,7 @@
         <div class="flex flex-col justify-between mb-6 sm:flex-row sm:items-center">
           <div>
             <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Gérer les produits</h1>
-            <p class="mt-5 text-gray-600 dark:text-gray-400"> 
+            <p class="mt-5 text-gray-600 dark:text-gray-400">
               <strong class="text-xl text-indigo-600 dark:text-indigo-400">{{ collection?.name }}</strong> - Ajoutez ou retirez des produits de cette collection
             </p>
           </div>
@@ -225,21 +225,21 @@ const formatPrice = (price) => {
 const fetchData = async () => {
   try {
     loading.value = true
-    
+
     // Charger la collection
-    const collectionResponse = await api.get(`/collections/${collectionId.value}`)
+    const collectionResponse = await api.get(`/api/admin/collections/${collectionId.value}`)
     console.log('Collection response:', collectionResponse)
-    
+
     if (collectionResponse?.success) {
       collectionData.value = collectionResponse
       collectionProducts.value = collectionResponse.data?.products || []
     } else {
       console.error('Erreur dans la réponse de la collection:', collectionResponse)
     }
-    
+
     // Charger les produits disponibles
     await searchProducts()
-    
+
   } catch (error) {
     console.error('Erreur lors du chargement initial:', error)
   } finally {
@@ -254,10 +254,10 @@ const searchProducts = async () => {
       search: searchQuery.value,
       per_page: 50
     }
-    
-    const response = await api.get('/products', { params })
+
+    const response = await api.get('/api/admin/products', { params })
     console.log('Produits disponibles:', response)
-    
+
     if (response?.success) {
       // Filtrer les produits déjà dans la collection
       const collectionProductIds = collectionProducts.value.map(p => p.id)
@@ -279,19 +279,19 @@ const debouncedSearch = debounce(searchProducts, 500)
 const addProduct = async (productId) => {
   try {
     actionLoading.value = true
-    
-    const response = await api.post(`/collections/${collectionId.value}/products`, {
+
+    const response = await api.post(`/api/admin/collections/${collectionId.value}/products`, {
       product_id: productId
     })
-    
+
     console.log('Réponse ajout produit:', response)
-    
+
     if (response?.success) {
       successMessage.value = 'Produit ajouté avec succès'
-      
+
       // Mettre à jour localement sans recharger
       updateProductLists(productId, 'add', response.data)
-      
+
       setTimeout(() => successMessage.value = null, 3000)
     } else {
       console.error('Erreur lors de l\'ajout:', response)
@@ -311,17 +311,17 @@ const addProduct = async (productId) => {
 const removeProduct = async (productId) => {
   try {
     actionLoading.value = true
-    
-    const response = await api.delete(`/collections/${collectionId.value}/products/${productId}`)
-    
+
+    const response = await api.delete(`/api/admin/collections/${collectionId.value}/products/${productId}`)
+
     console.log('Réponse suppression produit:', response)
-    
+
     if (response?.success) {
       successMessage.value = 'Produit retiré avec succès'
-      
+
       // Mettre à jour localement sans recharger
       updateProductLists(productId, 'remove')
-      
+
       setTimeout(() => successMessage.value = null, 3000)
     } else {
       console.error('Erreur lors de la suppression:', response.data)

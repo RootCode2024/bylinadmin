@@ -123,7 +123,7 @@ export const useBrandsStore = defineStore('brands', () => {
 
       console.log('Fetching brands with params:', requestParams)
 
-      const response = await api.get('/brands', {
+      const response = await api.get('/api/admin/brands', {
         params: requestParams
       })
 
@@ -192,7 +192,7 @@ export const useBrandsStore = defineStore('brands', () => {
     try {
       isLoading.value = true
 
-      const response = await api.get('/brands', {
+      const response = await api.get('/api/admin/brands', {
         params: { ...params, only_deleted: true }
       })
 
@@ -211,7 +211,7 @@ export const useBrandsStore = defineStore('brands', () => {
   async function fetchBrand(id) {
     try {
       isLoading.value = true
-      const response = await api.get(`/brands/${id}`)
+      const response = await api.get(`/api/admin/brands/${id}`)
       currentBrand.value = response.data.data || response.data
 
       // Mettre à jour dans la liste appropriée si elle existe
@@ -251,7 +251,7 @@ export const useBrandsStore = defineStore('brands', () => {
         headers['Content-Type'] = 'multipart/form-data';
       }
 
-      const response = await api.post('/brands', requestData, { headers })
+      const response = await api.post('/api/admin/brands', requestData, { headers })
 
       const newBrand = response.data.data || response.data
       brands.value.unshift(newBrand)
@@ -271,7 +271,7 @@ export const useBrandsStore = defineStore('brands', () => {
     try {
       isLoading.value = true
 
-      const response = await api.post('/brands', brandData, {
+      const response = await api.post('/api/admin/brands', brandData, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -306,7 +306,7 @@ export const useBrandsStore = defineStore('brands', () => {
         headers['Content-Type'] = 'multipart/form-data';
       }
 
-      const response = await api.post(`/brands/${id}?_method=PATCH`, requestData, { headers })
+      const response = await api.post(`/api/admin/brands/${id}?_method=PATCH`, requestData, { headers })
 
       const updatedBrand = response.data.data || response.data
       const index = brands.value.findIndex(b => b.id == id)
@@ -355,7 +355,7 @@ export const useBrandsStore = defineStore('brands', () => {
   async function deleteBrand(id) {
     try {
       isLoading.value = true
-      const response = await api.delete(`/brands/${id}`)
+      const response = await api.delete(`/api/admin/brands/${id}`)
 
       // Déplacer de la liste active vers la liste supprimée
       const brandIndex = brands.value.findIndex(b => b.id === id)
@@ -387,7 +387,7 @@ export const useBrandsStore = defineStore('brands', () => {
   async function restoreBrand(id) {
     try {
       isLoading.value = true
-      const response = await api.post(`/brands/${id}/restore`)
+      const response = await api.post(`/api/admin/brands/${id}/restore`)
 
       // Déplacer de la liste supprimée vers la liste active
       const deletedIndex = deletedBrands.value.findIndex(b => b.id === id)
@@ -413,7 +413,7 @@ export const useBrandsStore = defineStore('brands', () => {
   async function forceDeleteBrand(id) {
     try {
       isLoading.value = true
-      const response = await api.delete(`/brands/${id}/force`)
+      const response = await api.delete(`/api/admin/brands/${id}/force`)
 
       // Retirer définitivement de toutes les listes
       brands.value = brands.value.filter(b => b.id !== id)
@@ -449,7 +449,7 @@ export const useBrandsStore = defineStore('brands', () => {
 
       console.log('IDs validés à envoyer:', validIds)
 
-      const response = await api.post('/brands/bulk/delete', {
+      const response = await api.post('/api/admin/brands/bulk/delete', {
         ids: validIds
       })
 
@@ -497,7 +497,7 @@ export const useBrandsStore = defineStore('brands', () => {
 
       const validIds = brandIds.map(id => parseInt(id)).filter(id => !isNaN(id) && id > 0)
 
-      const response = await api.post('/brands/bulk/restore', {
+      const response = await api.post('/api/admin/brands/bulk/restore', {
         ids: validIds
       })
 
@@ -540,7 +540,7 @@ export const useBrandsStore = defineStore('brands', () => {
 
       const validIds = brandIds.map(id => parseInt(id)).filter(id => !isNaN(id) && id > 0)
 
-      const response = await api.post('/brands/bulk/force-delete', {
+      const response = await api.post('/api/admin/brands/bulk/force-delete', {
         ids: validIds
       })
 
@@ -573,7 +573,7 @@ export const useBrandsStore = defineStore('brands', () => {
 
       const validIds = brandIds.map(id => parseInt(id)).filter(id => !isNaN(id) && id > 0)
 
-      const response = await api.post('/brands/bulk/update', {
+      const response = await api.post('/api/admin/brands/bulk/update', {
         ids: validIds,
         action: action
       })
@@ -605,7 +605,7 @@ export const useBrandsStore = defineStore('brands', () => {
     try {
       const validIds = brandIds.map(id => parseInt(id)).filter(id => !isNaN(id) && id > 0)
 
-      const response = await api.post('/brands/bulk/delete-preview', {
+      const response = await api.post('/api/admin/brands/bulk/delete-preview', {
         ids: validIds
       })
       return response.data

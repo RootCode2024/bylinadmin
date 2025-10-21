@@ -1397,8 +1397,8 @@ const saveDraft = async () => {
 const loadFormData = async () => {
   try {
     const [brandsRes, categoriesRes] = await Promise.all([
-      api.get('/brands'),
-      api.get('/categories'),
+      api.get('/api/admin/brands'),
+      api.get('/api/admin/categories'),
       colorsStore.fetchColors(),
       sizesStore.fetchSizes()
     ])
@@ -1413,7 +1413,7 @@ const loadFormData = async () => {
 // Charger un produit à dupliquer
 const loadProductToDuplicate = async (productId) => {
   try {
-    const response = await api.get(`/products/${productId}`)
+    const response = await api.get(`/api/admin/products/${productId}`)
     const productData = response.product || response.data // Adapter selon votre API
 
     // Fonction utilitaire pour formater les dates
@@ -1733,7 +1733,7 @@ const submitForm = async () => {
       }
     })
 
-    const response = await api.post('/products', formData, {
+    const response = await api.post('/api/admin/products', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

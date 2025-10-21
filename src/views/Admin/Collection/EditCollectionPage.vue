@@ -785,7 +785,7 @@ const uploadImage = async (file, type) => {
     formData.append('image', file)
     formData.append('type', type)
 
-    const response = await api.post('/admin/upload-image', formData, {
+    const response = await api.post('/api/admin/upload-image', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -806,7 +806,7 @@ const uploadImage = async (file, type) => {
 const fetchCollection = async () => {
   try {
     loading.value = true
-    const response = await api.get(`/collections/${collectionId.value}`)
+    const response = await api.get(`/api/admin/collections/${collectionId.value}`)
 
     console.log('Données de la collection:', response)
 
@@ -867,7 +867,7 @@ const submitForm = async () => {
       }
     }
 
-    const response = await api.put(`/collections/${collectionId.value}`, form.value)
+    const response = await api.put(`/api/admin/collections/${collectionId.value}`, form.value)
 
     if (response?.success) {
       successMessage.value = 'Collection mise à jour avec succès!'
@@ -907,7 +907,7 @@ const deleteCollection = async () => {
 
     isDeleting.value = true
 
-    const response = await api.delete(`/collections/${collectionId.value}`)
+    const response = await api.delete(`/api/admin/collections/${collectionId.value}`)
 
     if (response?.success) {
       router.push('/collections')

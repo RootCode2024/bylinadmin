@@ -282,7 +282,7 @@ const closeDropdown = () => {
 const fetchNotifications = async () => {
   try {
     loading.value.fetch = true
-    const response = await api.get('/notifications', { params: { per_page: 10 } })
+    const response = await api.get('/api/admin/notifications', { params: { per_page: 10 } })
 
     if (response.success) {
       const newNotifications = response.data || []
@@ -308,7 +308,7 @@ const fetchNotifications = async () => {
 
 const fetchUnreadCount = async () => {
   try {
-    const response = await api.get('/notifications/unread-count')
+    const response = await api.get('/api/admin/notifications/unread-count')
     if (response.success) {
       const newCount = response.unread_count || 0
       if (newCount > unreadCount.value) {
@@ -360,7 +360,7 @@ const markAllAsRead = async () => {
 const deleteNotification = async (notificationId) => {
   try {
     loading.value.delete = true
-    const response = await api.delete(`/notifications/${notificationId}`)
+    const response = await api.delete(`/api/admin/notifications/${notificationId}`)
     if (response.data.success) {
       const index = notifications.value.findIndex(n => n.id === notificationId)
       if (index !== -1) {

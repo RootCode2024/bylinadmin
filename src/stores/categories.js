@@ -128,7 +128,7 @@ export const useCategoriesStore = defineStore('categories', () => {
 
       console.log('Fetching categories with params:', requestParams)
 
-      const response = await api.get('/categories', {
+      const response = await api.get('/api/admin/categories', {
         params: requestParams
       })
 
@@ -197,7 +197,7 @@ export const useCategoriesStore = defineStore('categories', () => {
     try {
       isLoading.value = true
 
-      const response = await api.get('/categories', {
+      const response = await api.get('/api/admin/categories', {
         params: { ...params, only_deleted: true }
       })
 
@@ -216,7 +216,7 @@ export const useCategoriesStore = defineStore('categories', () => {
   async function fetchCategory(id) {
     try {
       isLoading.value = true
-      const response = await api.get(`/categories/${id}`)
+      const response = await api.get(`/api/admin/categories/${id}`)
       currentCategory.value = response.data.data || response.data
 
       // Mettre à jour dans la liste appropriée si elle existe
@@ -256,7 +256,7 @@ export const useCategoriesStore = defineStore('categories', () => {
         headers['Content-Type'] = 'multipart/form-data';
       }
 
-      const response = await api.post('/categories', requestData, { headers })
+      const response = await api.post('/api/admin/categories', requestData, { headers })
 
       const newCategory = response.data.data || response.data
       categories.value.unshift(newCategory)
@@ -276,7 +276,7 @@ export const useCategoriesStore = defineStore('categories', () => {
     try {
       isLoading.value = true
 
-      const response = await api.post('/categories', categoryData, {
+      const response = await api.post('/api/admin/categories', categoryData, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -311,7 +311,7 @@ export const useCategoriesStore = defineStore('categories', () => {
         headers['Content-Type'] = 'multipart/form-data';
       }
 
-      const response = await api.post(`/categories/${id}?_method=PATCH`, requestData, { headers })
+      const response = await api.post(`/api/admin/categories/${id}?_method=PATCH`, requestData, { headers })
 
       const updatedCategory = response.data.data || response.data
       const index = categories.value.findIndex(c => c.id == id)
@@ -360,7 +360,7 @@ export const useCategoriesStore = defineStore('categories', () => {
   async function deleteCategory(id) {
     try {
       isLoading.value = true
-      const response = await api.delete(`/categories/${id}`)
+      const response = await api.delete(`/api/admin/categories/${id}`)
 
       // Déplacer de la liste active vers la liste supprimée
       const categoryIndex = categories.value.findIndex(c => c.id === id)
@@ -392,7 +392,7 @@ export const useCategoriesStore = defineStore('categories', () => {
   async function restoreCategory(id) {
     try {
       isLoading.value = true
-      const response = await api.post(`/categories/${id}/restore`)
+      const response = await api.post(`/api/admin/categories/${id}/restore`)
 
       // Déplacer de la liste supprimée vers la liste active
       const deletedIndex = deletedCategories.value.findIndex(c => c.id === id)
@@ -418,7 +418,7 @@ export const useCategoriesStore = defineStore('categories', () => {
   async function forceDeleteCategory(id) {
     try {
       isLoading.value = true
-      const response = await api.delete(`/categories/${id}/force`)
+      const response = await api.delete(`/api/admin/categories/${id}/force`)
 
       // Retirer définitivement de toutes les listes
       categories.value = categories.value.filter(c => c.id !== id)
@@ -454,7 +454,7 @@ export const useCategoriesStore = defineStore('categories', () => {
 
       console.log('IDs validés à envoyer:', validIds)
 
-      const response = await api.post('/categories/bulk/delete', {
+      const response = await api.post('/api/admin/categories/bulk/delete', {
         ids: validIds
       })
 
@@ -502,7 +502,7 @@ export const useCategoriesStore = defineStore('categories', () => {
 
       const validIds = categoryIds.map(id => parseInt(id)).filter(id => !isNaN(id) && id > 0)
 
-      const response = await api.post('/categories/bulk/restore', {
+      const response = await api.post('/api/admin/categories/bulk/restore', {
         ids: validIds
       })
 
@@ -545,7 +545,7 @@ export const useCategoriesStore = defineStore('categories', () => {
 
       const validIds = categoryIds.map(id => parseInt(id)).filter(id => !isNaN(id) && id > 0)
 
-      const response = await api.post('/categories/bulk/force-delete', {
+      const response = await api.post('/api/admin/categories/bulk/force-delete', {
         ids: validIds
       })
 
@@ -578,7 +578,7 @@ export const useCategoriesStore = defineStore('categories', () => {
 
       const validIds = categoryIds.map(id => parseInt(id)).filter(id => !isNaN(id) && id > 0)
 
-      const response = await api.post('/categories/bulk/update', {
+      const response = await api.post('/api/admin/categories/bulk/update', {
         ids: validIds,
         action: action
       })
@@ -610,7 +610,7 @@ export const useCategoriesStore = defineStore('categories', () => {
     try {
       const validIds = categoryIds.map(id => parseInt(id)).filter(id => !isNaN(id) && id > 0)
 
-      const response = await api.post('/categories/bulk/delete-preview', {
+      const response = await api.post('/api/admin/categories/bulk/delete-preview', {
         ids: validIds
       })
       return response.data

@@ -1302,7 +1302,7 @@ const fetchCollections = async () => {
 
     const params = buildQueryParams()
 
-    const response = await api.get('/collections', { params })
+    const response = await api.get('/api/admin/collections', { params })
 
     console.log('Collections response:', response)
 
@@ -1340,7 +1340,7 @@ const fetchCollections = async () => {
 const fetchStats = async () => {
   try {
     loadingStates.value.stats = true
-    const response = await api.get('/collections/stats')
+    const response = await api.get('/api/admin/collections/stats')
     console.log('Stats response:', response)
     if (response.success) {
       stats.value = response.data
@@ -1359,7 +1359,7 @@ const viewCollection = async (collection) => {
     currentCollectionMetrics.value = null
     showDetailsModal.value = true
 
-    const response = await api.get(`/collections/${collection.id}`)
+    const response = await api.get(`/api/admin/collections/${collection.id}`)
     console.log('Votre collection: ', response)
     currentCollection.value = response.data
     currentCollectionMetrics.value = response.metrics
@@ -1382,7 +1382,7 @@ const viewCollectionReviews = async (collection) => {
     currentCollection.value = collection
     showReviewsModal.value = true
 
-    const response = await api.get(`/collections/${collection.id}/reviews`)
+    const response = await api.get(`/api/admin/collections/${collection.id}/reviews`)
     collectionReviews.value = response.reviews || []
     collectionReviewsStats.value = response.stats || {}
 
@@ -1436,7 +1436,7 @@ const deleteReview = async (reviewId) => {
   if (!confirm('Êtes-vous sûr de vouloir supprimer cet avis ?')) return
 
   try {
-    await api.delete(`/collection-reviews/${reviewId}`)
+    await api.delete(`/api/admin/collection-reviews/${reviewId}`)
     collectionReviews.value = collectionReviews.value.filter(r => r.id !== reviewId)
   } catch (error) {
     console.error('Erreur lors de la suppression:', error)

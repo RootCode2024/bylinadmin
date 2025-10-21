@@ -94,7 +94,7 @@ const loading = ref({ fetch: false, markRead: false, delete: false })
 const fetchNotifications = async () => {
   try {
     loading.value.fetch = true
-    const response = await api.get('/notifications', { params: { per_page: 50 } })
+    const response = await api.get('/api/admin/notifications', { params: { per_page: 50 } })
     if (response.success) {
       notifications.value = response.data || []
     }
@@ -123,7 +123,7 @@ const markAsRead = async (notificationId) => {
 const deleteNotification = async (notificationId) => {
   try {
     loading.value.delete = true
-    const response = await api.delete(`/notifications/${notificationId}`)
+    const response = await api.delete(`/api/admin/notifications/${notificationId}`)
     if (response.data.success) {
       notifications.value = notifications.value.filter(n => n.id !== notificationId)
     }

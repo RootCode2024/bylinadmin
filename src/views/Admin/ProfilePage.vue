@@ -812,7 +812,7 @@ const validateCaptcha = () => {
 
 const loadAvailableAdmins = async () => {
   try {
-    const response = await api.get('/admins')
+    const response = await api.get('/api/admin/admins')
     console.log('Les administrateurs : ', response)
     availableAdmins.value = response.data.filter(admin =>
       admin.id !== user.value.id
@@ -833,7 +833,7 @@ const confirmFinalDeletion = async () => {
     }
 
     // Utiliser la bonne URL - supprimer le profil de l'utilisateur connecté
-    const response = await api.delete('/profile', { data: payload });
+    const response = await api.delete('/api/admin/profile', { data: payload });
 
     console.log(response)
 
@@ -951,7 +951,7 @@ const formatDateDisplay = (date) => {
 // Charger les données utilisateur
 const loadUserData = async () => {
   try {
-    const response = await api.get('/profile')
+    const response = await api.get('/api/admin/profile')
 
     if (response.status === 'success') {
       user.value = response.user
@@ -1041,7 +1041,7 @@ const handleAvatarUpload = async (event) => {
     const formData = new FormData()
     formData.append('avatar', file)
 
-    const response = await api.post('/profile/avatar', formData, {
+    const response = await api.post('/api/admin/profile/avatar', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }

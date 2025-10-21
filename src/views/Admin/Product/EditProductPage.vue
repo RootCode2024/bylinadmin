@@ -1448,8 +1448,8 @@ const saveDraft = async () => {
 const loadFormData = async () => {
   try {
     const [brandsRes, categoriesRes] = await Promise.all([
-      api.get('/brands'),
-      api.get('/categories'),
+      api.get('/api/admin/brands'),
+      api.get('/api/admin/categories'),
       colorsStore.fetchColors(),
       sizesStore.fetchSizes()
     ])
@@ -1464,7 +1464,7 @@ const loadFormData = async () => {
 // Charger le produit à modifier
 const loadProduct = async (productId) => {
   try {
-    const response = await api.get(`/products/${productId}`)
+    const response = await api.get(`/api/admin/products/${productId}`)
     const productData = response.product || response.data.product || response.data
 
     // Mapper les données du produit
@@ -1788,7 +1788,7 @@ try {
     })
 
     // CORRECTION: Utiliser POST avec _method=PUT pour FormData
-    const response = await api.post(`/products/${product.value.id}`, formData, {
+    const response = await api.post(`/api/admin/products/${product.value.id}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       },

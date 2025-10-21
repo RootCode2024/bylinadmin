@@ -72,7 +72,7 @@ export const useDeliveryStore = defineStore('delivery', () => {
     loading.value = true
     error.value = null
     try {
-      const response = await api.get('/deliveries', { params })
+      const response = await api.get('/api/admin/deliveries', { params })
 
       deliveries.value = response.data.data || response.data
 
@@ -97,7 +97,7 @@ export const useDeliveryStore = defineStore('delivery', () => {
 
   const fetchDeliveriesForZone = async (city) => {
     try {
-      const response = await api.get('/deliveries/zone', {
+      const response = await api.get('/api/admin/deliveries/zone', {
         params: { city, is_active: true, is_available: true }
       })
       return response.data
@@ -110,7 +110,7 @@ export const useDeliveryStore = defineStore('delivery', () => {
   const createDelivery = async (deliveryData) => {
     loading.value = true
     try {
-      const response = await api.post('/deliveries', deliveryData)
+      const response = await api.post('/api/admin/deliveries', deliveryData)
       deliveries.value.push(response.data.data)
       return response.data
     } catch (err) {
@@ -124,7 +124,7 @@ export const useDeliveryStore = defineStore('delivery', () => {
   const updateDelivery = async (id, updateData) => {
     loading.value = true
     try {
-      const response = await api.put(`/deliveries/${id}`, updateData)
+      const response = await api.put(`/api/admin/deliveries/${id}`, updateData)
       const index = deliveries.value.findIndex(d => d.id === id)
       if (index !== -1) {
         deliveries.value[index] = response.data.data
@@ -157,7 +157,7 @@ export const useDeliveryStore = defineStore('delivery', () => {
   const deleteDelivery = async (id) => {
     loading.value = true
     try {
-      await api.delete(`/deliveries/${id}`)
+      await api.delete(`/api/admin/deliveries/${id}`)
       deliveries.value = deliveries.value.filter(d => d.id !== id)
     } catch (err) {
       error.value = err.response?.data?.message || err.message
@@ -180,10 +180,10 @@ export const useDeliveryStore = defineStore('delivery', () => {
       }
 
       console.log("Données envoyées à l'API :", payload);
-      
-      const response = await api.post('/shipments', payload)
+
+      const response = await api.post('/api/admin/shipments', payload)
       console.log("Réponse updateShipment :", response);
-      
+
       shipments.value.push(response.data)
       return response.data
     } catch (err) {
@@ -197,7 +197,7 @@ export const useDeliveryStore = defineStore('delivery', () => {
   const fetchShipments = async (params = {}) => {
     loading.value = true
     try {
-      const response = await api.get('/shipments', { params })
+      const response = await api.get('/api/admin/shipments', { params })
       shipments.value = response.data.data || response.data
       return response.data
     } catch (err) {
@@ -230,7 +230,7 @@ export const useDeliveryStore = defineStore('delivery', () => {
   // Actions - Notifications
   const fetchNotifications = async (params = {}) => {
     try {
-      const response = await api.get('/delivery-notifications', { params })
+      const response = await api.get('/api/admin/delivery-notifications', { params })
       notifications.value = response.data.data || response.data
       return response.data
     } catch (err) {
@@ -256,7 +256,7 @@ export const useDeliveryStore = defineStore('delivery', () => {
   // Actions - Statistiques et performance
   const fetchDeliveryStats = async (deliveryId, days = 30) => {
     try {
-      const response = await api.get(`/deliveries/${deliveryId}/stats`, {
+      const response = await api.get(`/api/admin/deliveries/${deliveryId}/stats`, {
         params: { days }
       })
       return response.data
@@ -268,7 +268,7 @@ export const useDeliveryStore = defineStore('delivery', () => {
 
   const fetchPerformanceData = async (params = {}) => {
     try {
-      const response = await api.get('/delivery-performance', { params })
+      const response = await api.get('/api/admin/delivery-performance', { params })
       return response.data
     } catch (err) {
       console.error('Error fetching performance data:', err)

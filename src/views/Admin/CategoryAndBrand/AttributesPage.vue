@@ -352,7 +352,7 @@ const fetchAttributes = async () => {
   errorMessage.value = null
 
   try {
-    const response = await api.get('/admin/attributes')
+    const response = await api.get('/api/admin/admin/attributes')
 
     if (!response || !response.data) {
       throw new Error('Réponse API invalide')
@@ -429,9 +429,9 @@ const saveAttribute = async () => {
     }
 
     if (isEditingAttribute.value) {
-      await api.put(`/admin/attributes/${cleanedForm.id}`, cleanedForm)
+      await api.put(`/api/admin/attributes/${cleanedForm.id}`, cleanedForm)
     } else {
-      await api.post('/admin/attributes', cleanedForm)
+      await api.post('/api/admin/attributes', cleanedForm)
     }
 
     await fetchAttributes()
@@ -469,7 +469,7 @@ const deleteAttribute = async () => {
   errorMessage.value = null
 
   try {
-    await api.delete(`/admin/attributes/${attributeToDelete.value}`)
+    await api.delete(`/api/admin/admin/attributes/${attributeToDelete.value}`)
     await fetchAttributes()
     closeDeleteModal()
   } catch (error) {

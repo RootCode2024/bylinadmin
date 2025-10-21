@@ -205,7 +205,7 @@ const fetchMonthlySales = async () => {
   chartDataReady.value = false; // Reset du flag
   
   try {
-    const response = await api.get('/monthly-sales-complete', {
+    const response = await api.get('/api/admin/monthly-sales-complete', {
       params: { year: selectedYear.value }
     });
 
@@ -259,7 +259,7 @@ const setFallbackData = () => {
 
 const fetchAvailableYears = async () => {
   try {
-    const response = await api.get('/available-years');
+    const response = await api.get('/api/admin/available-years');
 
     console.log(response)
     

@@ -53,7 +53,7 @@
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
               Informations de base
             </h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Nom de la collection -->
               <div class="md:col-span-2">
@@ -156,14 +156,14 @@
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
               Images
             </h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Image de couverture -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Image de couverture
                 </label>
-                
+
                 <div class="space-y-4">
                   <!-- Aperçu -->
                   <div v-if="coverImagePreview" class="border rounded-lg p-4">
@@ -178,7 +178,7 @@
                   </div>
 
                   <!-- Upload -->
-                  <div 
+                  <div
                     class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 transition-colors hover:border-blue-400"
                     @drop.prevent="handleDrop($event, 'cover')"
                     @dragover.prevent
@@ -211,7 +211,7 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Image de bannière
                 </label>
-                
+
                 <div class="space-y-4">
                   <!-- Aperçu -->
                   <div v-if="bannerImagePreview" class="border rounded-lg p-4">
@@ -226,7 +226,7 @@
                   </div>
 
                   <!-- Upload -->
-                  <div 
+                  <div
                     class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-4 transition-colors hover:border-blue-400"
                     @drop.prevent="handleDrop($event, 'banner')"
                     @dragover.prevent
@@ -261,7 +261,7 @@
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
               Période et saison
             </h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
               <!-- Saison -->
               <div>
@@ -362,7 +362,7 @@
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
               Configuration d'affichage
             </h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Type de mise en page -->
               <div>
@@ -408,7 +408,7 @@
                     >
                     <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Afficher les prix</span>
                   </label>
-                  
+
                   <label class="flex items-center">
                     <input
                       type="checkbox"
@@ -417,7 +417,7 @@
                     >
                     <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Afficher les badges</span>
                   </label>
-                  
+
                   <label class="flex items-center">
                     <input
                       type="checkbox"
@@ -436,7 +436,7 @@
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
               Statut et visibilité
             </h2>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Statut -->
               <div>
@@ -453,7 +453,7 @@
                     >
                     <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Active</span>
                   </label>
-                  
+
                   <label class="flex items-center">
                     <input
                       type="radio"
@@ -481,7 +481,7 @@
                     >
                     <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Visible</span>
                   </label>
-                  
+
                   <label class="flex items-center">
                     <input
                       type="radio"
@@ -508,7 +508,7 @@
                     >
                     <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Collection vedette</span>
                   </label>
-                  
+
                   <label class="flex items-center">
                     <input
                       type="checkbox"
@@ -527,7 +527,7 @@
             <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-6">
               Optimisation SEO
             </h2>
-            
+
             <div class="space-y-6">
               <!-- Meta title -->
               <div>
@@ -734,7 +734,7 @@ const submitForm = async () => {
       console.log(key + ': ' + value + ' (type: ' + typeof value + ')')
     }
 
-    const response = await api.post('/collections', formData, {
+    const response = await api.post('/api/admin/collections', formData, {
       headers: {
         'Content-Type': 'multipart/form-data'
       }
@@ -744,7 +744,7 @@ const submitForm = async () => {
 
     if (response?.success) {
       successMessage.value = 'Collection créée avec succès!'
-      
+
       // Redirection après un délai
       setTimeout(() => {
         router.push('/collections')
@@ -755,7 +755,7 @@ const submitForm = async () => {
 
   } catch (error) {
     console.error('Erreur lors de la création:', error)
-    
+
     if (error.response?.errors) {
       errors.value = error.response.errors
     } else {
@@ -820,7 +820,7 @@ const validateAndProcessImage = (file, type) => {
 
   // Créer une URL pour la prévisualisation
   const imageUrl = URL.createObjectURL(file)
-  
+
   if (type === 'cover') {
     coverImagePreview.value = imageUrl
   } else if (type === 'banner') {
@@ -862,7 +862,7 @@ const generateMetaTitle = () => {
 onMounted(() => {
   // Générer une référence par défaut
   generateReference()
-  
+
   // Date de début par défaut : aujourd'hui
   const today = new Date().toISOString().split('T')[0]
   form.value.start_date = today

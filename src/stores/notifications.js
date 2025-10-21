@@ -46,7 +46,7 @@ export const useNotificationsStore = defineStore('notifications', {
     async fetchNotifications(params = {}) {
       try {
         this.loading = true
-        const response = await api.get('/notifications', {
+        const response = await api.get('/api/admin/notifications', {
           params: {
             page: this.pagination.currentPage,
             per_page: this.pagination.perPage,
@@ -78,7 +78,7 @@ export const useNotificationsStore = defineStore('notifications', {
 
     async fetchUnreadCount() {
       try {
-        const response = await api.get('/notifications/unread-count')
+        const response = await api.get('/api/admin/notifications/unread-count')
         if (response.data.success) {
           this.unreadCount = response.data.unread_count || 0
         }
@@ -126,7 +126,7 @@ export const useNotificationsStore = defineStore('notifications', {
 
     async deleteNotification(notificationId) {
       try {
-        const response = await api.delete(`/notifications/${notificationId}`)
+        const response = await api.delete(`/api/admin/notifications/${notificationId}`)
 
         if (response.data.success) {
           const index = this.notifications.findIndex(n => n.id === notificationId)

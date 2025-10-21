@@ -268,7 +268,7 @@ const fetchData = async () => {
     loading.value = true
     
     // Charger la collection
-    const collectionResponse = await api.get(`/collections/${collectionId.value}`)
+    const collectionResponse = await api.get(`/api/admin/collections/${collectionId.value}`)
     console.log('Collection response:', collectionResponse)
     if (collectionResponse.success) {
       collection.value = collectionResponse.data

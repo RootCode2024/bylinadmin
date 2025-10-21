@@ -148,7 +148,7 @@ export const useSizesStore = defineStore('sizes', () => {
     clearError()
 
     try {
-      const response = await api.get('/sizes')
+      const response = await api.get('/api/admin/sizes')
 
       // Gérer différents formats de réponse
       let sizesData = []
@@ -196,7 +196,7 @@ export const useSizesStore = defineStore('sizes', () => {
         description: sizeData.description?.trim() || null
       }
 
-      const response = await api.post('/sizes', cleanedData)
+      const response = await api.post('/api/admin/sizes', cleanedData)
       const newSize = response.data?.data || response.data
 
       // Ajouter à la liste locale
@@ -230,7 +230,7 @@ export const useSizesStore = defineStore('sizes', () => {
         description: sizeData.description?.trim() || null
       }
 
-      const response = await api.put(`/sizes/${id}`, cleanedData)
+      const response = await api.put(`/api/admin/sizes/${id}`, cleanedData)
       const updatedSize = response.data?.data || response.data
 
       // Mettre à jour dans la liste locale
@@ -254,7 +254,7 @@ export const useSizesStore = defineStore('sizes', () => {
     clearError()
 
     try {
-      await api.delete(`/sizes/${id}`)
+      await api.delete(`/api/admin/sizes/${id}`)
 
       // Supprimer de la liste locale
       const index = sizes.value.findIndex(size => size.id === id)
@@ -401,7 +401,7 @@ export const useSizesStore = defineStore('sizes', () => {
 
     try {
       // Appel API pour sauvegarder l'ordre (si supporté par le backend)
-      // await api.put('/sizes/reorder', { order: sizesOrder })
+      // await api.put('/api/admin/sizes/reorder', { order: sizesOrder })
 
       // Mettre à jour l'ordre local
       const reorderedSizes = sizesOrder.map(id =>

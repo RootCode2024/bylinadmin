@@ -244,7 +244,7 @@ const isCategory = computed(() => props.title.toLowerCase().includes('catégorie
 const isBrand = computed(() => props.title.toLowerCase().includes('marque'))
 
 const apiEndpoint = computed(() => {
-  return isCategory.value ? '/categories' : '/brands'
+  return isCategory.value ? '/api/admin/categories' : '/api/admin/brands'
 })
 
 // Méthodes
