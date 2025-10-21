@@ -28,7 +28,7 @@ export const useAuthStore = defineStore('auth', () => {
       error.value = null
 
       // 2. Send login request
-      const response = await api.post('/login', credentials, {
+      const response = await api.post('/api/admin/login', credentials, {
         withCredentials: true,
         headers: {
           'Accept': 'application/json',
