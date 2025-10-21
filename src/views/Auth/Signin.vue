@@ -168,9 +168,7 @@ const handleSubmit = async () => {
 
   try {
     const response = await authStore.login(formData.value)
-    if (response?.token) {
-      router.push('/')
-    }
+    router.push('/')
   } catch (error: any) {
     console.error('Login error:', error)
     errorMessage.value = error?.response?.data?.message || 'Adresse e-mail ou mot de passe invalide.'

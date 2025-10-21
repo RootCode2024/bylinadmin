@@ -8,7 +8,6 @@ export const useAuthStore = defineStore('auth', () => {
 
   // State
   const user = ref(JSON.parse(localStorage.getItem('user')) || null)
-  const token = ref(localStorage.getItem('token') || null)
   const roles = ref(JSON.parse(localStorage.getItem('roles')) || [])
   const permissions = ref(JSON.parse(localStorage.getItem('permissions')) || [])
   const returnUrl = ref(null)
@@ -16,7 +15,7 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref(null)
 
   // Getters
-  const isAuthenticated = computed(() => !!token.value)
+  const isAuthenticated = computed(() => !!user.value)
   const isSuperAdmin = computed(() => roles.value.includes('superadmin'))
   const isAdmin = computed(() => roles.value.includes('admin'))
   const isManager = computed(() => roles.value.includes('manager'))
@@ -40,19 +39,11 @@ export const useAuthStore = defineStore('auth', () => {
 
       // console.log('La reponse apres le login : ', response)
 
-
-      // 3. Process response - MODIFIED HERE
-      if (!response?.token) {
-        throw new Error(response?.message || 'Authentification échouée')
-      }
-
-      token.value = response.token
       user.value = response.user
       roles.value = response.roles || []
       permissions.value = response.permissions || []
 
       // // 4. Save to localStorage
-      localStorage.setItem('token', token.value)
       localStorage.setItem('user', JSON.stringify(user.value))
       localStorage.setItem('roles', JSON.stringify(roles.value))
       localStorage.setItem('permissions', JSON.stringify(permissions.value))
@@ -80,11 +71,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function fetchUser() {
     try {
-      if (!token.value) return;
 
-      const response = await api.get('/me', {
-        headers: { Authorization: `Bearer ${token.value}` }
-      });
+      const response = await api.get('/api/admin/me');
 
       // Version flexible (selon la structure de l'API)
       user.value = response?.user
@@ -107,9 +95,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function logout() {
     try {
-      await api.post('/logout', null, {
-        headers: { Authorization: `Bearer ${token.value}` }
-      })
+      await api.post('/api/admin/logout')
     } catch (err) {
       console.error('Erreur lors de la déconnexion:', err)
     } finally {
@@ -119,11 +105,9 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   function clearAuthData() {
-    token.value = null
     user.value = null
     roles.value = []
     permissions.value = []
-    localStorage.removeItem('token')
     localStorage.removeItem('user')
     localStorage.removeItem('roles')
     localStorage.removeItem('permissions')
@@ -137,21 +121,9 @@ export const useAuthStore = defineStore('auth', () => {
     return permissions.value.includes(permission)
   }
 
-  // Initialisation
-  if (token.value) {
-    // On charge d'abord les données en cache
-    user.value = JSON.parse(localStorage.getItem('user')) || null;
-    roles.value = JSON.parse(localStorage.getItem('roles')) || [];
-    permissions.value = JSON.parse(localStorage.getItem('permissions')) || [];
-
-    // Puis on tente une MAJ silencieuse (sans bloquer l'UI)
-    fetchUser(); // En arrière-plan
-  }
-
   return {
     // State
     user,
-    token,
     roles,
     permissions,
     returnUrl,

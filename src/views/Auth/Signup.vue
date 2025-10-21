@@ -470,10 +470,7 @@ const handleSubmit = async () => {
     console.log('Registration successful:', response);
 
     // Handle successful registration
-    if (response && response.token) {
-      // Redirect or show success message
       router.push('/'); // Example redirect
-    }
   } catch (error) {
     console.error('Registration error:', error);
     if (typeof error === 'string' && error.includes('CSRF')) {

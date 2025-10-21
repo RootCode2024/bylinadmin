@@ -23,11 +23,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     error.value = null
 
     try {
-      const response = await api.get('/dashboard-stats', {
-        headers: {
-          Authorization: `Bearer ${authStore.token}`
-        }
-      })
+      const response = await api.get('/api/admin/dashboard-stats')
 
       console.log("Réponse fetchDashboard :", response);
       const data = response
@@ -48,11 +44,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     error.value = null
 
     try {
-      const response = await api.get('/transactions', {
-        headers: {
-          Authorization: `Bearer ${authStore.token}`
-        }
-      })
+      const response = await api.get('/api/admin/transactions')
 
       console.log("Réponse fetchTransactions :", response);
       const data = response
