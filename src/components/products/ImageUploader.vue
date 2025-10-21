@@ -91,7 +91,7 @@ const props = defineProps({
   },
   maxSize: {
     type: Number, // en Mo
-    default: 2
+    default: 3
   }
 })
 
@@ -102,10 +102,8 @@ const dragOver = ref(false)
 const errorMessage = ref('')
 
 const getImageUrl = (image) => {
-  return image instanceof File ? URL.createObjectURL(image) : 'http://localhost:8000' + image.url
+  return image instanceof File ? URL.createObjectURL(image) : 'https://api.bylin-style.com' + image.url
 }
-
-// 'http://localhost:8000' +
 
 const openFilePicker = () => {
   fileInput.value.click()
@@ -141,9 +139,9 @@ const processFiles = (files) => {
       continue
     }
 
-    // Vérifier la taille
-    if (file.size > props.maxSize * 1024 * 1024) {
-      errorMessage.value = `Les images ne doivent pas dépasser ${props.maxSize}MB`
+    // Vérifier la taille (max 3MB)
+    if (file.size > 3 * 1024 * 1024) {
+      errorMessage.value = "Les images ne doivent pas dépasser 3MB"
       continue
     }
 
