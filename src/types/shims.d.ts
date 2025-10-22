@@ -11,14 +11,6 @@ declare module '@/stores/auth' {
   export const useAuthStore: DefineStoreOptions<'auth', any, any, any>
 }
 
-declare module '@/services/websocket.js' {
-  export const initWebSocket: () => void
-}
-
-declare module './services/websocket' {
-  export const initWebSocket: () => void
-}
-
 declare module './plugins/echo' {
   export const echo: any
 }

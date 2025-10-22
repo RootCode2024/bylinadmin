@@ -392,48 +392,6 @@ export const useConversationsStore = defineStore('conversations', {
       this.selectedConversation = null
     },
 
-    // Ajouter un message reçu (pour WebSocket/temps réel)
-    addReceivedMessage(message) {
-      const conversationId = message.conversation_id
-
-      // Ajouter à la conversation sélectionnée si c'est la bonne
-      if (this.selectedConversation && this.selectedConversation.id === conversationId) {
-        if (!this.selectedConversation.messages) {
-          this.selectedConversation.messages = []
-        }
-        this.selectedConversation.messages.push(message)
-        this.selectedConversation.last_message = {
-          id: message.id,
-          content: message.content,
-          created_at: message.created_at,
-          sender: message.sender,
-          status: message.status
-        }
-      }
-
-      // Mettre à jour dans la liste
-      const conversationIndex = this.conversations.findIndex(c => c.id === conversationId)
-      if (conversationIndex !== -1) {
-        this.conversations[conversationIndex].last_message = {
-          id: message.id,
-          content: message.content,
-          created_at: message.created_at,
-          sender: message.sender,
-          status: message.status
-        }
-        this.conversations[conversationIndex].last_message_at = message.created_at
-
-        // Incrémenter le compteur si ce n'est pas la conversation active
-        if (!this.selectedConversation || this.selectedConversation.id !== conversationId) {
-          this.conversations[conversationIndex].unread_count++
-        }
-
-        // Déplacer en haut
-        const [conversation] = this.conversations.splice(conversationIndex, 1)
-        this.conversations.unshift(conversation)
-      }
-    },
-
     // Gérer les indicateurs de frappe
     setUserTyping(conversationId, userId, isTyping) {
       const key = `${conversationId}-${userId}`

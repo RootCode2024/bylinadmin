@@ -11,8 +11,6 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import VueApexCharts from 'vue3-apexcharts'
-import websocketService from './services/websocket'
-import { useAuthStore } from './stores/auth'
 import echo from './plugins/echo'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
@@ -28,28 +26,5 @@ app.config.globalProperties.$echo = echo
 app.use(ElementPlus)
 
 app.use(pinia)
-
-// Initialiser WebSocket après l'authentification
-router.beforeEach((to, from, next) => {
-  const authStore = useAuthStore()
-
-  // Si l'utilisateur est connecté et WebSocket pas encore initialisé
-  if (authStore.isAuthenticated && !websocketService.isConnected) {
-    websocketService.init()
-    websocketService.requestNotificationPermission()
-  }
-
-  // Si l'utilisateur se déconnecte
-  if (!authStore.isAuthenticated && websocketService.isConnected) {
-    websocketService.disconnect()
-  }
-
-  next()
-})
-
-// Gérer la fermeture de l'application
-window.addEventListener('beforeunload', () => {
-  websocketService.disconnect()
-})
 
 app.mount('#app')
