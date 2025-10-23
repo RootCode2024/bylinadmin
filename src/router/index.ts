@@ -32,12 +32,6 @@ const router = createRouter({
       meta: { requiresAuth: true, title: 'Tableau de bord', roles: ['superadmin', 'admin', 'manager'] }
     },
     {
-      path: '/notifications',
-      name: 'notifications',
-      component: () => import('@/views/Notification/Index.vue'),
-      meta: { requiresAuth: true, title: 'Notifications', roles: ['superadmin', 'admin', 'manager'] }
-    },
-    {
       path: '/profile',
       name: 'profile',
       component: () => import('@/views/Admin/ProfilePage.vue'),
