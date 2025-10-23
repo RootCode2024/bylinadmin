@@ -11,7 +11,6 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import VueApexCharts from 'vue3-apexcharts'
-import echo from './plugins/echo'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 
@@ -20,8 +19,6 @@ const app = createApp(App)
 
 app.use(router)
 app.use(VueApexCharts)
-
-app.config.globalProperties.$echo = echo
 
 app.use(ElementPlus)
 

@@ -145,12 +145,11 @@ export const useColorsStore = defineStore('colors', () => {
       // Nettoyer les données
       const cleanedData = {
         name: colorData.name.trim(),
-        slug: colorData.slug.trim() || generateSlug(colorData.name),
         hex_code: colorData.hex_code.toUpperCase()
       }
 
       const response = await api.post('/api/admin/colors', cleanedData)
-      const newColor = response.data?.data || response.data
+      const newColor = response.data
 
       // Ajouter à la liste locale
       colors.value.push(newColor)
@@ -158,7 +157,7 @@ export const useColorsStore = defineStore('colors', () => {
       return newColor
     } catch (err) {
       console.error('Erreur lors de la création de la couleur:', err)
-      setError(err.response?.data?.message || err.message || 'Erreur lors de la création de la couleur')
+      setError(err.response?.message || err.message || 'Erreur lors de la création de la couleur')
       throw err
     } finally {
       setLoading(false)

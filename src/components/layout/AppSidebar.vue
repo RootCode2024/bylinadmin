@@ -23,7 +23,7 @@
         <span
           v-if="isExpanded || isHovered || isMobileOpen"
           class="ml-2 text-lg font-semibold text-gray-900 dark:text-white"
-          ><img src="/logo.png" alt="logo Bylin" class="w-32 h-32"></span
+          ><img src="/logo.png" alt="logo bylin" class="w-8 h-8"></span
         >
         <span
           v-else

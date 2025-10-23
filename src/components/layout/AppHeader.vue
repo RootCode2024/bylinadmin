@@ -101,7 +101,6 @@
       >
         <div class="flex items-center gap-2 2xsm:gap-3">
           <ThemeToggler />
-          <NotificationMenu />
         </div>
         <UserMenu />
       </div>
@@ -115,7 +114,6 @@ import { useSidebar } from '@/composables/useSidebar'
 import ThemeToggler from '../common/ThemeToggler.vue'
 import SearchBar from './header/SearchBar.vue'
 import HeaderLogo from './header/HeaderLogo.vue'
-import NotificationMenu from './header/NotificationMenu.vue'
 import UserMenu from './header/UserMenu.vue'
 
 const { toggleSidebar, toggleMobileSidebar, isMobileOpen } = useSidebar()
@@ -151,7 +149,7 @@ const timezoneInfo = ref('')
 
 const updateTime = () => {
   currentTime.value = new Date()
-  
+
   // Formatage de la date et heure
   formattedDate.value = currentTime.value.toLocaleDateString('fr-FR', {
     weekday: 'long',
@@ -162,12 +160,12 @@ const updateTime = () => {
     minute: '2-digit',
     second: '2-digit',
   })
-  
+
   // Information du fuseau horaire
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone
   const offset = -currentTime.value.getTimezoneOffset() / 60
   const offsetString = offset >= 0 ? `UTC+${offset}` : `UTC${offset}`
-  
+
   timezoneInfo.value = `${timezone} (${offsetString})`
 }
 

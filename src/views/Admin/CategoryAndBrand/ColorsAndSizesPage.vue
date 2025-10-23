@@ -661,7 +661,6 @@ const saveColor = async () => {
 
     const colorData = {
       name: colorForm.value.name.trim(),
-      slug: colorForm.value.slug.trim() || colorsStore.generateSlug(colorForm.value.name),
       hex_code: colorForm.value.hex_code.toUpperCase()
     }
 

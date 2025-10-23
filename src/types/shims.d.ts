@@ -11,14 +11,6 @@ declare module '@/stores/auth' {
   export const useAuthStore: DefineStoreOptions<'auth', any, any, any>
 }
 
-declare module './plugins/echo' {
-  export const echo: any
-}
-
-declare module './plugins/echo.js' {
-  export const echo: any
-}
-
 // Pour les modules JavaScript
 declare module '*.js'
 
